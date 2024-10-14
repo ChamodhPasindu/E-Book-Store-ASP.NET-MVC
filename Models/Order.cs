@@ -1,4 +1,6 @@
-﻿namespace EBookStore.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace EBookStore.Models
 {
     public class Order
     {
@@ -8,6 +10,7 @@
 
         public DateTime OrderDate { get; set; } = DateTime.Now;
 
+        [Column(TypeName = "decimal(18, 2)")]
         public required decimal TotalAmount { get; set; }
 
         public required string OrderStatus { get; set; } 

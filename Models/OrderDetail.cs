@@ -1,4 +1,6 @@
-﻿namespace EBookStore.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace EBookStore.Models
 {
     public class OrderDetail
     {
@@ -10,6 +12,7 @@
 
         public int Quantity { get; set; }
 
+        [Column(TypeName = "decimal(18, 2)")]
         public decimal Price { get; set; }
 
         // Navigation properties
