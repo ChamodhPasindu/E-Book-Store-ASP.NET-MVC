@@ -2,7 +2,31 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container">
+    <div class="row">
+        <!-- Section for Sign Up and Sign In Buttons -->
+        <div class="col-md-12 text-center mt-5">
+            <a href="/Account/Login" class="btn btn-primary mx-2">Login</a>
+            <a href="/Account/Register" class="btn btn-success mx-2">Register</a>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <!-- Store details: About, Services, Book Categories, Customers, Trending Authors -->
+        <div class="col-md-12">
+            <h2>About Us</h2>
+            <p>Details about the store, services, etc.</p>
+
+            <h3>Book Categories</h3>
+            <ul>
+                <li>Fiction</li>
+                <li>Non-Fiction</li>
+                <li>Science</li>
+                <!-- Add more categories -->
+            </ul>
+
+            <h4>Total Customers: 5000+</h4>
+            <h4>Trending Authors: J.K. Rowling, George R.R. Martin, etc.</h4>
+        </div>
+    </div>
 </div>
