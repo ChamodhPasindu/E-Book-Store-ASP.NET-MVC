@@ -19,104 +19,21 @@ namespace EBookStore.Controllers
         }
 
         // GET: Books
-        public async Task<IActionResult> Index()
+        public IActionResult BookManagement()
         {
-            return View(await _context.Books.ToListAsync());
+            var books = _context.Books
+                              .Where(b => b.IsActive) // Only select active books
+                              .ToList(); 
+            if (books == null)
+            {
+                // Handle case where no books are found
+                return View(new List<Book>());
+            }
+            return View(books); 
         }
 
-        // GET: Books/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var book = await _context.Books
-                .FirstOrDefaultAsync(m => m.BookID == id);
-            if (book == null)
-            {
-                return NotFound();
-            }
-
-            return View(book);
-        }
-
-        // GET: Books/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: Books/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("BookID,Title,Author,Category,Price,QuantityInStock,PublicationDate,IsActive")] Book book)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(book);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(book);
-        }
-
-        // GET: Books/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var book = await _context.Books.FindAsync(id);
-            if (book == null)
-            {
-                return NotFound();
-            }
-            return View(book);
-        }
-
-        // POST: Books/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("BookID,Title,Author,Category,Price,QuantityInStock,PublicationDate,IsActive")] Book book)
-        {
-            if (id != book.BookID)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(book);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!BookExists(book.BookID))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(book);
-        }
-
-        // GET: Books/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        // GET: Books/GetBook/5
+        public async Task<IActionResult> GetBook(int? id)
         {
             if (id == null)
             {
@@ -130,27 +47,60 @@ namespace EBookStore.Controllers
                 return NotFound();
             }
 
-            return View(book);
+            return Json(book);// Return the book details as JSON for use in the modal or edit form
         }
 
-        // POST: Books/Delete/5
-        [HttpPost, ActionName("Delete")]
+        // POST: Books/AddOrEdit
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public IActionResult AddOrEdit(Book book)
+        {
+            if (book.BookID == 0)
+            {
+                // Add new book
+                _context.Books.Add(book);
+            }
+            else
+            {
+                // Edit existing book
+                var existingBook = _context.Books.Find(book.BookID);
+                if (existingBook != null)
+                {
+                    existingBook.Title = book.Title;
+                    existingBook.Author = book.Author;
+                    existingBook.Category = book.Category;
+                    existingBook.Price = book.Price;
+                    existingBook.QuantityInStock = book.QuantityInStock;
+                    existingBook.PublicationDate = book.PublicationDate;
+
+                    //if (book.ImageData != null)
+                    //{
+                    //    using (var ms = new MemoryStream())
+                    //    {
+                    //        book.ImageData.CopyTo(ms);
+                    //        existingBook.ImageData = ms.ToArray();
+                    //        existingBook.ImageMimeType = book.ImageFile.ContentType;
+                    //    }
+                    //}
+                }
+            }
+            _context.SaveChanges();
+            return RedirectToAction("BookManagement");
+        }
+
+         // POST: Books/Delete/5
+        [HttpPost]
+        public async Task<IActionResult> Delete(int id)
         {
             var book = await _context.Books.FindAsync(id);
             if (book != null)
             {
-                _context.Books.Remove(book);
+                book.IsActive = false;
+                _context.Books.Update(book);
+                await _context.SaveChangesAsync();
+                return Json(new { success = true });
             }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-
-        private bool BookExists(int id)
-        {
-            return _context.Books.Any(e => e.BookID == id);
+            return Json(new { success = false });
         }
     }
 }

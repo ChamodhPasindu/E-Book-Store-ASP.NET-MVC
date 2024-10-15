@@ -19,6 +19,10 @@ namespace EBookStore.Models
 
         public DateTime PublicationDate { get; set; }
 
-        public bool IsActive { get; set; } = true; 
+        public bool IsActive { get; set; } = true;
+
+        public byte[]? ImageData { get; set; }
+
+        public string? ImageMimeType { get; set; }
     }
 }

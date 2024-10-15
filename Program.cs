@@ -1,5 +1,4 @@
 using EBookStore.Models;
-using EBookStore.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,8 +18,6 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
-
-builder.Services.AddScoped<BookService>();
 
 // Add DbContext and connection string
 builder.Services.AddDbContext<BookStoreContext>(options =>
