@@ -1,6 +1,7 @@
 ﻿using EBookStore.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace EBookStore.Controllers
 {
@@ -93,5 +94,54 @@ namespace EBookStore.Controllers
             HttpContext.Session.Clear();
             return RedirectToAction("Login");
         }
-    }
+
+
+		// GET: CustomerManagement
+		public IActionResult CustomerManagement()
+		{
+			var users = _context.Users
+							  .Where(b => b.IsActive && b.Role=="Customer") // Only select active books
+							  .ToList();
+			if (users == null)
+			{
+				// Handle case where no users are found
+				return View(new List<User>());
+			}
+			return View(users);
+		}
+
+		// GET: Account/GetCustomer/5
+		public async Task<IActionResult> GetCustomer(int? id)
+		{
+			if (id == null)
+			{
+				return NotFound();
+			}
+
+			var user = await _context.Users
+				.FirstOrDefaultAsync(m => m.UserID == id);
+			if (user == null)
+			{
+				return NotFound();
+			}
+
+			return Json(user);// Return the user details as JSON for use in the modal or edit form
+		}
+
+		// POST: Account/Delete/5
+		[HttpPost]
+		public async Task<IActionResult> Delete(int id)
+		{
+			var user = await _context.Users.FindAsync(id);
+			if (user != null)
+			{
+				user.IsActive = false;
+				_context.Users.Update(user);
+				await _context.SaveChangesAsync();
+				return Json(new { success = true });
+			}
+			return Json(new { success = false });
+		}
+
+	}
 }
