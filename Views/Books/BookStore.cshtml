@@ -1,0 +1,113 @@
+﻿@model IEnumerable<EBookStore.Models.Book>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="text-center">Book Store</h2>
+        </div>
+    </div>
+
+    <!-- Search Field -->
+    <div class="row mb-4">
+        <div class="col-md-6 mx-auto">
+            <input type="text" id="searchInput" class="form-control" placeholder="Search books by title or author" />
+        </div>
+    </div>
+
+    <!-- No books message (initially hidden) -->
+    <div class="row mb-4" id="noBooksMessage" style="display: none;">
+        <div class="col-md-12 text-center">
+            <p class="alert alert-warning">No books found.</p>
+        </div>
+    </div>
+
+    <!-- Book Cards -->
+    <div class="row" id="bookCards">
+        @if (!Model.Any())
+        {
+            <!-- Display message if no books in database -->
+            <div class="col-md-12 text-center">
+                <p class="alert alert-warning">No books available.</p>
+            </div>
+        }
+        else
+        {
+            @foreach (var book in Model)
+            {
+                <div class="col-md-4 mb-4 book-card">
+                    <div class="card h-100 shadow">
+                        <img src="data:@book.ImageMimeType;base64,@Convert.ToBase64String(book.ImageData)" class="card-img-top" alt="@book.Title" />
+                        <div class="card-body">
+                            <h5 class="card-title">@book.Title</h5>
+                            <p class="card-text"><strong>Author:</strong> @book.Author</p>
+                            <p class="card-text"><strong>Price:</strong> LKR @book.Price</p>
+                        </div>
+                        <div class="card-footer d-flex justify-content-between">
+                            <button class="btn btn-primary" onclick="addToCart(@book.BookID)">Add to Cart</button>
+                            <button class="btn btn-info" data-toggle="modal" data-target="#viewBookModal" data-book-id="@book.BookID">View Book</button>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+<!-- View Book Modal (placeholder for viewing book details) -->
+<div class="modal fade" id="viewBookModal" tabindex="-1" role="dialog" aria-labelledby="viewBookModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewBookModalLabel">Book Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Book details content will go here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#searchInput').on('keyup', function () {
+                var value = $(this).val().toLowerCase();
+                var hasVisibleBooks = false;
+
+                $('#bookCards .book-card').filter(function () {
+                    var isVisible = $(this).text().toLowerCase().indexOf(value) > -1;
+                    $(this).toggle(isVisible);
+
+                    if (isVisible) {
+                        hasVisibleBooks = true;
+                    }
+                });
+
+                // Show or hide "no books found" message
+                if (hasVisibleBooks) {
+                    $('#noBooksMessage').hide();
+                } else {
+                    $('#noBooksMessage').show();
+                }
+            });
+
+            // Initially hide "no books found" if there are books
+            if ($('#bookCards .book-card').length > 0) {
+                $('#noBooksMessage').hide();
+            } else {
+                $('#noBooksMessage').show();
+            }
+        });
+
+        function addToCart(bookId) {
+            // Add book to cart logic here
+            console.log("Book ID added to cart:", bookId);
+        }
+    </script>
+}

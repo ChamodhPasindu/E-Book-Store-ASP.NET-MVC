@@ -18,8 +18,8 @@ namespace EBookStore.Controllers
 			_context = context;
 		}
 
-		// GET: Books
-		public IActionResult BookManagement()
+        // GET: BookManagement
+        public IActionResult BookManagement()
 		{
 			var books = _context.Books
 							  .Where(b => b.IsActive) // Only select active books
@@ -32,8 +32,22 @@ namespace EBookStore.Controllers
 			return View(books);
 		}
 
-		// GET: Books/GetBook/5
-		public async Task<IActionResult> GetBook(int? id)
+        // GET: BookStore
+        public IActionResult BookStore()
+        {
+            var books = _context.Books
+                              .Where(b => b.IsActive) // Only select active books
+                              .ToList();
+            if (books == null)
+            {
+                // Handle case where no books are found
+                return View(new List<Book>());
+            }
+            return View(books);
+        }
+
+        // GET: Books/GetBook/5
+        public async Task<IActionResult> GetBook(int? id)
 		{
 			if (id == null)
 			{
