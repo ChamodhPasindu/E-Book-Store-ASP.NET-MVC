@@ -70,7 +70,7 @@ namespace EBookStore.Controllers
                     // Redirect based on role
                     if (user.Role == "Admin")
                     {
-                        return RedirectToAction("Index", "Admin");
+                        return RedirectToAction("AdminDashboard", "Home");
                     }
                     else
                     {

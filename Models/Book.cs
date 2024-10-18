@@ -21,8 +21,10 @@ namespace EBookStore.Models
 
         public bool IsActive { get; set; } = true;
 
-        public byte[]? ImageData { get; set; }
+        public required byte[] ImageData { get; set; }
 
-        public string? ImageMimeType { get; set; }
+        public required string ImageMimeType { get; set; }
+
+        public ICollection<FeedBack> FeedBacks { get; set; } = new List<FeedBack>();
     }
 }

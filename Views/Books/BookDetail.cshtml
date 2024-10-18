@@ -1,0 +1,102 @@
+﻿@model EBookStore.Models.BookDetailViewModel
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<div class="book-detail container mt-5">
+    <h1 class="text-center">@Model.Book.Title</h1>
+
+    <div class="row">
+        <div class="col-md-4 text-center">
+            <img src="data:@Model.Book.ImageMimeType;base64,@Convert.ToBase64String(@Model.Book.ImageData!)" alt="@Model.Book.Title" class="img-fluid rounded" />
+        </div>
+        <div class="col-md-8">
+            <p><strong>Author:</strong> @Model.Book.Author</p>
+            <p><strong>Category:</strong> @Model.Book.Category</p>
+            <p><strong>Price:</strong> LKR @Model.Book.Price</p>
+            <p><strong>Quantity in stock:</strong> @Model.Book.QuantityInStock</p>
+
+            <div class="quantity-controls mb-3">
+                <label>Quantity:</label>
+                <button type="button" class="btn btn-secondary" onclick="decreaseQuantity()">-</button>
+                <input type="number" id="quantity" value="1" min="1" max="@Model.Book.QuantityInStock" readonly class="mx-2" />
+                <button type="button" class="btn btn-secondary" onclick="increaseQuantity()">+</button>
+            </div>
+
+            <button class="btn btn-primary" onclick="addToCart(@Model.Book.BookID)">Add to Cart</button>
+        </div>
+    </div>
+
+    <hr />
+    <h3>Reviews</h3>
+
+    @if (Model.Feedbacks.Any())
+    {
+        foreach (var feedback in Model.Feedbacks)
+        {
+            <div class="feedback border rounded p-3 mb-3">
+                <p><strong>@feedback.User.Email:</strong> @feedback.Rating / 5</p>
+                <p>@feedback.FeedbackText</p>
+                <p><em>@feedback.FeedbackDate.ToShortDateString()</em></p>
+            </div>
+        }
+    }
+    else
+    {
+        <p>No reviews yet.</p>
+    }
+
+    <hr />
+    @if (Model.HasPurchasedBook)
+    {
+        <h4>Leave a Review</h4>
+        <form asp-action="AddReview" method="post">
+            <div class="form-group">
+                <label for="FeedbackText">Your Review</label>
+                <textarea class="form-control" id="FeedbackText" name="FeedbackText" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="Rating">Rating</label>
+                <select class="form-control" id="Rating" name="Rating" required>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-success">Submit Review</button>
+        </form>
+    }
+    else
+    {
+        <p>You must purchase this book to leave a review.</p>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        function increaseQuantity() {
+            var qtyInput = document.getElementById("quantity");
+            if (parseInt(qtyInput.value) < @Model.Book.QuantityInStock) {
+                qtyInput.value = parseInt(qtyInput.value) + 1;
+            }
+        }
+
+        function decreaseQuantity() {
+            var qtyInput = document.getElementById("quantity");
+            if (parseInt(qtyInput.value) > 1) {
+                qtyInput.value = parseInt(qtyInput.value) - 1;
+            }
+        }
+
+        function addToCart(bookId) {
+            // Add to cart logic here
+            alert('Book added to cart');
+        }
+    </script>
+}

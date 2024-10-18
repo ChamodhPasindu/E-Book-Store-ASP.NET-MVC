@@ -18,5 +18,8 @@ namespace EBookStore.Models
 
         // Navigation property: an Order belongs to a User
         public required User User { get; set; }
+
+        // Navigation property: an Order can have multiple OrderDetails
+        public ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
     }
 }
