@@ -19,7 +19,7 @@ namespace EBookStore.Controllers
             _context = context;
         }
 
-        // GET: BookManagement
+        // GET: BookManagement View With All Books
         public IActionResult BookManagement()
         {
             var books = _context.Books
@@ -33,7 +33,7 @@ namespace EBookStore.Controllers
             return View(books);
         }
 
-        // GET: BookStore
+        // GET: BookStore View With All Books
         public IActionResult BookStore()
         {
             var books = _context.Books
@@ -47,7 +47,7 @@ namespace EBookStore.Controllers
             return View(books);
         }
 
-        // GET: BookDetail
+        // GET: BookDetail View By ID
         public async Task<IActionResult> BookDetail(int id)
         {
             var book = await _context.Books
@@ -85,7 +85,7 @@ namespace EBookStore.Controllers
             return View(model);
         }
 
-        // GET: Books/GetBook/5
+        // GET: Book By ID
         public async Task<IActionResult> GetBook(int? id)
         {
             if (id == null)
@@ -115,7 +115,7 @@ namespace EBookStore.Controllers
             return Json(book);// Return the book details as JSON for use in the modal or edit form
         }
 
-        // POST: Books/AddOrEdit
+        // POST: Add & Edit Method
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult AddOrEdit(Book book, IFormFile ImageFile)
@@ -163,7 +163,7 @@ namespace EBookStore.Controllers
             return RedirectToAction("BookManagement");
         }
 
-        // POST: Books/Delete/5
+        // POST: Book Delete By ID
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
@@ -178,7 +178,7 @@ namespace EBookStore.Controllers
             return Json(new { success = false });
         }
 
-
+        // POST : Add Review To Book
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddReview(int bookId, string feedbackText, int rating)

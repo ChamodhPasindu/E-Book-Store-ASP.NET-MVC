@@ -16,14 +16,42 @@ namespace EBookStore.Controllers
             _passwordHasher = passwordHasher;
         }
 
-        // GET: Account/Register
+        // GET: Register View
         [HttpGet]
         public IActionResult Register()
         {
             return View();
         }
 
-        // POST: Account/Register
+        // GET: Login View
+        public IActionResult Login()
+        {
+            return View();
+        }
+
+        // GET: Logout View
+        public IActionResult Logout()
+        {
+            // Clear session
+            HttpContext.Session.Clear();
+            return RedirectToAction("Login");
+        }
+
+        // GET: CustomerManagement View With All Customers
+        public IActionResult CustomerManagement()
+        {
+            var users = _context.Users
+                              .Where(b => b.IsActive && b.Role == "Customer") // Only select active books
+                              .ToList();
+            if (users == null)
+            {
+                // Handle case where no users are found
+                return View(new List<User>());
+            }
+            return View(users);
+        }
+
+        // POST: Register Method
         [HttpPost]
         [Route("account/register")]
         [ValidateAntiForgeryToken]
@@ -42,13 +70,7 @@ namespace EBookStore.Controllers
             return View(newUser);
         }
 
-        // GET: Account/Login
-        public IActionResult Login()
-        {
-            return View();
-        }
-
-        // POST: Account/Login
+        // POST: Login Method
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Login(string email, string password)
@@ -88,29 +110,7 @@ namespace EBookStore.Controllers
             return View();
         }
 
-        public IActionResult Logout()
-        {
-            // Clear session
-            HttpContext.Session.Clear();
-            return RedirectToAction("Login");
-        }
-
-
-		// GET: CustomerManagement
-		public IActionResult CustomerManagement()
-		{
-			var users = _context.Users
-							  .Where(b => b.IsActive && b.Role=="Customer") // Only select active books
-							  .ToList();
-			if (users == null)
-			{
-				// Handle case where no users are found
-				return View(new List<User>());
-			}
-			return View(users);
-		}
-
-		// GET: Account/GetCustomer/5
+		// GET: Customer By ID
 		public async Task<IActionResult> GetCustomer(int? id)
 		{
 			if (id == null)
@@ -128,7 +128,7 @@ namespace EBookStore.Controllers
 			return Json(user);// Return the user details as JSON for use in the modal or edit form
 		}
 
-		// POST: Account/Delete/5
+		// POST: Customer Delete By ID
 		[HttpPost]
 		public async Task<IActionResult> Delete(int id)
 		{

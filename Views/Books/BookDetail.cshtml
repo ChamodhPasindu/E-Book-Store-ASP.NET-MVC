@@ -95,8 +95,21 @@
         }
 
         function addToCart(bookId) {
-            // Add to cart logic here
-            alert('Book added to cart');
+            var qtyInput = document.getElementById("quantity");
+
+            $.ajax({
+                url: '/Order/AddToCart',
+                type: 'POST',
+                data: { bookId: bookId, quantity: parseInt(qtyInput.value) },
+                success: function (response) {
+                    alert('Book added to cart!');
+                    // Optionally, you can also update the cart item count displayed in your UI
+                    // updateCartItemCount(response.cartItemCount);
+                },
+                error: function (xhr, status, error) {
+                    alert('Error adding book to cart: ' + error);
+                }
+            });
         }
     </script>
 }

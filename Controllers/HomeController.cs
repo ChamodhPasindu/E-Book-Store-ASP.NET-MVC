@@ -16,11 +16,20 @@ namespace EBookStore.Controllers
             _context = context;
         }
 
+
+        // GET : Home View 
         public IActionResult Index()
         {
+            // Retrieve the cart item count from the session
+            int cartItemCount = HttpContext.Session.GetInt32("CartItemCount") ?? 0;
+
+            // Pass the count to the view via ViewData
+            ViewData["CartItemCount"] = cartItemCount;
+
             return View();
         }
 
+        // GET : Admin Dashboard View With Relevent Data
         public async Task<IActionResult> AdminDashboard()
         {
             // Fetch the total counts of active entities

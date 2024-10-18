@@ -1,0 +1,53 @@
+﻿@model List<CartItemViewModel> 
+
+<h2>Your Cart</h2>
+
+@if (Model == null || !Model.Any())
+{
+    <div class="col-md-12 text-center">
+        <p class="alert alert-warning">Your cart is empty..</p>
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Book Image</th> 
+                    <th>Book Title</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Total</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <img src="data:@item.book!.ImageMimeType;base64,@Convert.ToBase64String(@item.book.ImageData!)" alt="@item.book!.Title" class="img-thumbnail" style="width: 100px; height: auto;" />
+                        </td>
+                        <td>@item.book!.Title</td>
+                        <td>
+                            <input type="number" min="1" max="@item.book.QuantityInStock" value="@item.Quantity" />
+                        </td>
+                        <td>LKR @item.book!.Price</td>
+                        <td>LKR @(item.book!.Price * item.Quantity)</td>
+                        <td>
+                            <form asp-action="RemoveFromCart" method="post">
+                                <input type="hidden" name="bookId" value="@item.book.BookID" />
+                                <button type="submit" class="btn btn-danger">Remove</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div>
+        <strong>Total: LKR @Model.Sum(x => (x.Quantity *  x.book!.Price))</strong>
+    </div>
+    <button class="btn btn-primary">Proceed to Checkout</button>
+}
