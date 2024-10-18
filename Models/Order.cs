@@ -13,7 +13,7 @@ namespace EBookStore.Models
         [Column(TypeName = "decimal(18, 2)")]
         public required decimal TotalAmount { get; set; }
 
-        public required string OrderStatus { get; set; } 
+        public required string OrderStatus { get; set; } //Pending,Shipped,Delivered
 
 
         // Navigation property: an Order belongs to a User
