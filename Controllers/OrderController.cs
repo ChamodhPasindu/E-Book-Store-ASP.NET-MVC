@@ -1,5 +1,6 @@
 ﻿using EBookStore.Models;
 using EBookStore.Util;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EBookStore.Controllers
@@ -38,6 +39,11 @@ namespace EBookStore.Controllers
 
             if (cartItem == null)
             {
+                var itemCount = HttpContext.Session.GetString("CartItemCount") ?? "0";
+                var newItemCount = int.Parse(itemCount) + 1;
+                HttpContext.Session.SetString("CartItemCount", newItemCount.ToString());
+
+
                 cart.Add(new CartItemViewModel { BookId = bookId, book = book, Quantity = quantity });
             }
             else
@@ -46,7 +52,7 @@ namespace EBookStore.Controllers
             }
 
             HttpContext.Session.SetObjectAsJson("Cart", cart);
-            return RedirectToAction("BookStore","Books");
+            return RedirectToAction("BookStore", "Books");
         }
 
 
@@ -64,6 +70,9 @@ namespace EBookStore.Controllers
 
                 if (itemToRemove != null)
                 {
+                    var itemCount = HttpContext.Session.GetString("CartItemCount") ?? "0";
+                    var newItemCount = int.Parse(itemCount) - 1;
+                    HttpContext.Session.SetString("CartItemCount", newItemCount.ToString());
                     cart.Remove(itemToRemove); // Remove the item from the cart
                 }
 

@@ -95,8 +95,7 @@
 				data: { bookId: bookId, quantity: quantity },
 				success: function (response) {
 					alert('Book added to cart!');
-					// Optionally, you can also update the cart item count displayed in your UI
-					// updateCartItemCount(response.cartItemCount);
+					location.reload();
 				},
 				error: function (xhr, status, error) {
 					alert('Error adding book to cart: ' + error);
