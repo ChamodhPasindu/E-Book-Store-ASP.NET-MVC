@@ -87,7 +87,8 @@ namespace EBookStore.Controllers
                     HttpContext.Session.SetString("UserID", user.UserID.ToString());
                     HttpContext.Session.SetString("FirstName", user.FirstName);
                     HttpContext.Session.SetString("LastName", user.LastName);
-                    HttpContext.Session.SetString("Role", user.Role);
+                    HttpContext.Session.SetString("Address", user.Address);
+					HttpContext.Session.SetString("Role", user.Role);
 
                     // Redirect based on role
                     if (user.Role == "Admin")

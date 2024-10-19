@@ -40,7 +40,7 @@ namespace EBookStore.Controllers
             // Fetch recent active data (e.g., last 5 active orders and users)
             var recentActiveOrders = await _context.Orders
                 .Include(o => o.User)  // Include user details in the orders
-                .Where(o => o.OrderStatus == "Active")
+                .Where(o => o.OrderStatus == "Pending")
                 .OrderByDescending(o => o.OrderDate)
                 .Take(5)
             .ToListAsync();

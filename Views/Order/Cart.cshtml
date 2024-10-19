@@ -49,5 +49,39 @@ else
     <div>
         <strong>Total: LKR @Model.Sum(x => (x.Quantity *  x.book!.Price))</strong>
     </div>
-    <button class="btn btn-primary">Proceed to Checkout</button>
+    <button class="btn btn-primary" onclick="placeOrder()">Proceed to Checkout</button>
+}
+
+@section Scripts {
+    <script>
+        function placeOrder() {
+            var isLoggedIn = '@Context.Session.GetString("Role")'; // Get user role from session
+
+            if (!isLoggedIn) {
+                alert("You must logged into the system before place order");
+                // User is not logged in, redirect to login
+                window.location.href = '@Url.Action("Login", "Account")';
+            } else {
+                // Show confirmation alert
+                if (confirm("Do you want to confirm the order?")) {
+                    // Proceed to place the order
+                    confirmOrder();
+                }
+            }
+        }
+
+        function confirmOrder() {
+            $.ajax({
+                url: '@Url.Action("PlaceOrder", "Order")',
+                type: 'POST',
+                success: function (response) {
+                    alert('Order has been successfully placed.');
+                    // window.location.href = '@Url.Action("OrderSummary", "Order")'; // Redirect to order summary page
+                },
+                error: function (error) {
+                    alert('Error placing order.');
+                }
+            });
+        }
+    </script>
 }

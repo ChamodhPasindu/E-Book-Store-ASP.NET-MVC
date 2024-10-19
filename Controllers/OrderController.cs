@@ -1,4 +1,5 @@
-﻿using EBookStore.Models;
+﻿using System.Net;
+using EBookStore.Models;
 using EBookStore.Util;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -81,6 +82,62 @@ namespace EBookStore.Controllers
             }
 
             return RedirectToAction("Cart");
+        }
+
+        // POST : Place Order Method
+        [HttpPost]
+        public async Task<IActionResult> PlaceOrder()
+        {
+            // Check if user is logged in and has items in the cart
+            var userRole = HttpContext.Session.GetString("Role");
+            var cartItems = HttpContext.Session.GetObjectFromJson<List<CartItemViewModel>>("Cart");
+            var userId = HttpContext.Session.GetString("UserID")!;
+
+            if (userRole == null || cartItems == null || cartItems.Count == 0)
+            {
+                return BadRequest("User not logged in or cart is empty.");
+            }
+
+            var user = await _context.Users.FindAsync(int.Parse(userId));
+
+            // Proceed with placing the order
+            var order = new Order
+            {
+                UserID = int.Parse(userId),
+                OrderDate = DateTime.Now,
+                TotalAmount = cartItems.Sum(item => item.book!.Price * item.Quantity),
+                OrderStatus = "Pending",
+                User = user!
+
+            };
+
+            _context.Orders.Add(order);
+           
+
+            // Save the order details
+            foreach (var item in cartItems)
+            {
+                var book = await _context.Books.FindAsync(item.BookId);
+
+                var orderDetail = new OrderDetail
+                {
+                    
+                    Price = item.book!.Price,
+                    Quantity = item.Quantity,
+                    Order= order,
+                    Book = book!
+                };
+
+                _context.OrderDetails.Add(orderDetail);
+            }
+
+            await _context.SaveChangesAsync();
+
+            // Clear the cart
+            HttpContext.Session.Remove("Cart");
+            HttpContext.Session.SetString("CartItemCount", "0");
+
+            return Ok(new { message = "Order placed successfully." });
         }
     }
 
