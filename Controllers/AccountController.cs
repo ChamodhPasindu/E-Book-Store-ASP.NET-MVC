@@ -1,8 +1,17 @@
 ﻿using EBookStore.Models;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.Scripting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using iText.Kernel.Pdf;
+using iText.Layout;
+using iText.Layout.Element;
+using System.IO;
+using PdfWriter = iText.Kernel.Pdf.PdfWriter;
+
 
 namespace EBookStore.Controllers
 {
@@ -56,6 +65,43 @@ namespace EBookStore.Controllers
         public IActionResult Setting()
         {
             return View();
+        }
+
+        // GET : Report Page With Complete Orders Data
+        public async Task<IActionResult> Report(DateTime? fromDate, DateTime? toDate)
+        {
+            var query = _context.Orders
+                .Include(o => o.User)
+                .Where(o => o.OrderStatus == "Delivered");
+
+            // Apply date filtering
+            if (fromDate.HasValue)
+                query = query.Where(o => o.OrderDate >= fromDate.Value);
+            if (toDate.HasValue)
+                query = query.Where(o => o.OrderDate <= toDate.Value);
+
+            var deliveredOrders = await query.ToListAsync();
+
+            // Map to OrderViewModel
+            var deliveredOrderViewModels = deliveredOrders.Select(o => new OrderViewModel
+            {
+                OrderID = o.OrderID,
+                OrderStatus = o.OrderStatus,
+                OrderDate = o.OrderDate,
+                TotalAmount = o.TotalAmount,
+                CustomerName = $"{o.User.FirstName} {o.User.LastName}",
+                CustomerEmail = o.User.Email,
+                CustomerAddress = o.User.Address,
+                OrderItems = o.OrderDetails.Select(od => new OrderItemViewModel
+                {
+                    BookTitle = od.Book.Title,
+                    Quantity = od.Quantity,
+                    Price = od.Price
+                }).ToList()
+            }).ToList();
+
+            // Pass the list to the view as the model
+            return View(deliveredOrderViewModels);
         }
 
         // POST: Register Method
@@ -218,5 +264,127 @@ namespace EBookStore.Controllers
             return RedirectToAction("Setting");
         }
 
+
+        // GET : Download Order Details By ID
+        public async Task<IActionResult> DownloadOrder(int orderId)
+        {
+            var order = await _context.Orders
+                .Include(o => o.OrderDetails)
+                .ThenInclude(od => od.Book)
+                .Include(o => o.User)
+                .FirstOrDefaultAsync(o => o.OrderID == orderId);
+
+            if (order == null) return NotFound();
+
+            using (var stream = new MemoryStream())
+            {
+                // Initialize the PDF writer
+                var writer = new PdfWriter(stream);
+                var pdf = new iText.Kernel.Pdf.PdfDocument(writer);
+                var document = new iText.Layout.Document(pdf);
+
+                // Add title
+                document.Add(new iText.Layout.Element.Paragraph($"Order Report - Order ID: {orderId}").SetFontSize(18).SetBold());
+
+                // Add customer details
+                document.Add(new iText.Layout.Element.Paragraph($"Customer: {order.User.FirstName} {order.User.LastName}"));
+                document.Add(new iText.Layout.Element.Paragraph($"Email: {order.User.Email}"));
+                document.Add(new iText.Layout.Element.Paragraph($"Address: {order.User.Address}"));
+                document.Add(new iText.Layout.Element.Paragraph($"Order Date: {order.OrderDate.ToString("yyyy-MM-dd")}"));
+                document.Add(new iText.Layout.Element.Paragraph($"Total Amount: {order.TotalAmount.ToString("C", new System.Globalization.CultureInfo("en-LK"))}"));
+
+                // Add order item details
+                document.Add(new iText.Layout.Element.Paragraph("Order Items:"));
+                var table = new iText.Layout.Element.Table(3); // 3 columns for Book Title, Quantity, and Price
+                table.AddHeaderCell("Book Title");
+                table.AddHeaderCell("Quantity");
+                table.AddHeaderCell("Price");
+
+                foreach (var item in order.OrderDetails)
+                {
+                    table.AddCell(item.Book.Title);
+                    table.AddCell(item.Quantity.ToString());
+                    table.AddCell(item.Price.ToString("C", new System.Globalization.CultureInfo("en-LK")));
+                }
+                document.Add(table);
+
+                // Close the document
+                document.Close();
+
+                return File(stream.ToArray(), "application/pdf", $"Order_{orderId}.pdf");
+            }
+        }
+
+        // GET : Download All Books
+        public async Task<IActionResult> DownloadBooks()
+        {
+            var books = await _context.Books.Where(b => b.IsActive).ToListAsync();
+
+            using (var stream = new MemoryStream())
+            {
+                var writer = new PdfWriter(stream);
+                var pdf = new iText.Kernel.Pdf.PdfDocument(writer);
+                var document = new iText.Layout.Document(pdf);
+
+                document.Add(new iText.Layout.Element.Paragraph("Books Report").SetFontSize(18).SetBold());
+
+                var table = new iText.Layout.Element.Table(5); 
+                table.AddHeaderCell("Title");
+                table.AddHeaderCell("Author");
+                table.AddHeaderCell("Category");
+                table.AddHeaderCell("Publication Date");
+                table.AddHeaderCell("Price");
+
+                foreach (var book in books)
+                {
+                    table.AddCell(book.Title);
+                    table.AddCell(book.Author);
+                    table.AddCell(book.Category);
+                    table.AddCell(book.PublicationDate.ToString().Split('T')[0]);
+                    table.AddCell(book.Price.ToString("C", new System.Globalization.CultureInfo("en-LK")));
+                }
+                document.Add(table);
+
+                document.Close();
+
+                return File(stream.ToArray(), "application/pdf", "AllBooks.pdf");
+            }
+        }
+
+        // GET : Download All Customers
+        public async Task<IActionResult> DownloadCustomers()
+        {
+            var customers = await _context.Users.Where(b => b.IsActive).ToListAsync();
+
+            using (var stream = new MemoryStream())
+            {
+                var writer = new PdfWriter(stream);
+                var pdf = new iText.Kernel.Pdf.PdfDocument(writer);
+                var document = new iText.Layout.Document(pdf);
+
+                document.Add(new iText.Layout.Element.Paragraph("Customers Report").SetFontSize(18).SetBold());
+
+                var table = new iText.Layout.Element.Table(5); 
+                table.AddHeaderCell("Name");
+                table.AddHeaderCell("Email");
+                table.AddHeaderCell("Phone Number");
+                table.AddHeaderCell("Address");
+                table.AddHeaderCell("Registration Date");
+
+                foreach (var customer in customers)
+                {
+                    table.AddCell($"{customer.FirstName} {customer.LastName}");
+                    table.AddCell(customer.Email);
+                    table.AddCell(customer.PhoneNumber);
+                    table.AddCell(customer.Address);
+                    table.AddCell(customer.RegistrationDate.ToString().Split('T')[0]);
+                }
+                document.Add(table);
+
+                document.Close();
+
+                return File(stream.ToArray(), "application/pdf", "AllCustomers.pdf");
+            }
+        }
     }
 }

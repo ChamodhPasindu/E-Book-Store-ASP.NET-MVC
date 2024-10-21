@@ -1,0 +1,61 @@
+﻿@model List<OrderViewModel>
+
+<h2>Report </h2>
+<form id="filterForm" method="get">
+    <div class="form-group">
+        <label for="fromDate">From Date</label>
+        <input type="date" id="fromDate" name="fromDate" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label for="toDate">To Date</label>
+        <input type="date" id="toDate" name="toDate" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Filter Orders</button>
+</form>
+ 
+<table class="table">
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Customer Name</th>
+            <th>Total Amount</th>
+            <th>Order Date</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var order in Model)
+        {
+            <tr>
+                <td>@order.OrderID</td>
+                <td>@order.CustomerName</td>
+                <td>@order.TotalAmount.ToString("C", new System.Globalization.CultureInfo("en-LK"))</td>
+                <td>@order.OrderDate.ToString("yyyy-MM-dd")</td>
+                <td>
+                    <button class="btn btn-info" onclick="downloadOrder(@order.OrderID)">Download</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@* Report Download Buttons *@
+<button class="btn btn-success" onclick="downloadAllBooks()">Download All Books</button>
+<button class="btn btn-success" onclick="downloadAllCustomers()">Download All Customers</button>
+
+<script>
+    // Download specific order
+    function downloadOrder(orderId) {
+        window.location.href = `/Account/DownloadOrder?orderId=` + orderId;
+    }
+
+    // Download all books report
+    function downloadAllBooks() {
+        window.location.href = '/Account/DownloadBooks';
+    }
+
+    // Download all customers report
+    function downloadAllCustomers() {
+        window.location.href = '/Account/DownloadCustomers';
+    }
+</script>
