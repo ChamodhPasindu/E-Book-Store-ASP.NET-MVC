@@ -1,0 +1,61 @@
+﻿@model UserSettingsViewModel
+
+<h2>Settings</h2>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<!-- Form for updating user details -->
+<h3>Update Details</h3>
+<form asp-action="UpdateDetails" method="post">
+    <input type="hidden" asp-for="UserID" value="@Context.Session.GetString("UserID")" />
+
+    <div class="form-group">
+        <label asp-for="FirstName">First Name</label>
+        <input asp-for="FirstName" class="form-control" value="@Context.Session.GetString("FirstName")" required />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="LastName">Last Name</label>
+        <input asp-for="LastName" class="form-control" value="@Context.Session.GetString("LastName")" required />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Email">Email</label>
+        <input asp-for="Email" class="form-control" type="email" value="@Context.Session.GetString("Email")" required />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Address">Address</label>
+        <input asp-for="Address" value="@Context.Session.GetString("Address")" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Update Details</button>
+</form>
+
+<!-- Form for updating password -->
+<h3>Update Password</h3>
+<form asp-action="ChangePassword" method="post">
+    <div class="form-group">
+        <label for="CurrentPassword">Current Password</label>
+        <input type="password" id="CurrentPassword" name="CurrentPassword" class="form-control" required />
+    </div>
+
+    <div class="form-group">
+        <label for="NewPassword">New Password</label>
+        <input type="password" id="NewPassword" name="NewPassword" class="form-control" required />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Update Password</button>
+</form>

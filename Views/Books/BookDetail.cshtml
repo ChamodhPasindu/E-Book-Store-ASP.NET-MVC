@@ -55,6 +55,7 @@
     {
         <h4>Leave a Review</h4>
         <form asp-action="AddReview" method="post">
+            <input type="hidden" name="bookId" value="@Model.Book.BookID" />
             <div class="form-group">
                 <label for="FeedbackText">Your Review</label>
                 <textarea class="form-control" id="FeedbackText" name="FeedbackText" required></textarea>

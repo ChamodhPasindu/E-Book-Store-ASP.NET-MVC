@@ -68,7 +68,7 @@
 						@if (Context.Session.GetString("Role") != null)
 						{
 							<li class="nav-item">
-								<a class="nav-link" asp-area="" asp-controller="Account" asp-action="Logout">
+								<a class="nav-link" asp-area="" asp-controller="Account" asp-action="Setting">
 									<i class="bi bi-person-circle"></i> @Context.Session.GetString("FirstName")
 								</a>
 							</li>

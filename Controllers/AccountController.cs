@@ -1,6 +1,7 @@
 ﻿using EBookStore.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.Scripting;
 using Microsoft.EntityFrameworkCore;
 
 namespace EBookStore.Controllers
@@ -49,6 +50,12 @@ namespace EBookStore.Controllers
                 return View(new List<User>());
             }
             return View(users);
+        }
+
+        // GET: Settings View
+        public IActionResult Setting()
+        {
+            return View();
         }
 
         // POST: Register Method
@@ -144,5 +151,72 @@ namespace EBookStore.Controllers
 			return Json(new { success = false });
 		}
 
-	}
+
+        // POST : Update User Details Method
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateDetails(UserSettingsViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _context.Users.FindAsync(model.UserID);
+                if (user == null)
+                {
+                    return NotFound();
+                }
+
+                // Update user details
+                user.FirstName = model.FirstName;
+                user.LastName = model.LastName;
+                user.Email = model.Email;
+                user.Address = model.Address;
+
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Details updated successfully!";
+                return View("Setting");
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Details updated Failed!";
+                return View("Setting");
+            }
+        }
+
+        // POST : Change Password Method
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangePassword(string currentPassword, string newPassword)
+        {
+            var userId = HttpContext.Session.GetString("UserID");
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var user = await _context.Users.FindAsync(int.Parse(userId));
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            // Verify current password
+            var result = _passwordHasher.VerifyHashedPassword(user, user.Password,currentPassword );
+
+            if (result != PasswordVerificationResult.Success)
+            {
+                TempData["ErrorMessage"] = "Current password is incorrect.";
+                return RedirectToAction("Setting");
+            }
+
+
+            // Update password
+            user.Password = _passwordHasher.HashPassword(user, newPassword);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Password updated successfully!";
+            return RedirectToAction("Setting");
+        }
+
+    }
 }
