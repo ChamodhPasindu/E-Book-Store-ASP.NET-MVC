@@ -100,6 +100,11 @@ namespace EBookStore.Controllers
 
             var user = await _context.Users.FindAsync(int.Parse(userId));
 
+            if (user == null)
+            {
+                return BadRequest("User not found.");
+            }
+
             // Proceed with placing the order
             var order = new Order
             {
@@ -118,6 +123,19 @@ namespace EBookStore.Controllers
             foreach (var item in cartItems)
             {
                 var book = await _context.Books.FindAsync(item.BookId);
+
+                if (book == null)
+                {
+                    return BadRequest($"Book with ID {item.BookId} not found.");
+                }
+
+                // Decrease the stock quantity
+                if (book.QuantityInStock < item.Quantity)
+                {
+                    return BadRequest($"Insufficient stock for book: {book.Title}. Available quantity: {book.QuantityInStock}.");
+                }
+
+                book.QuantityInStock -= item.Quantity;
 
                 var orderDetail = new OrderDetail
                 {

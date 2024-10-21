@@ -76,7 +76,7 @@ else
                 type: 'POST',
                 success: function (response) {
                     alert('Order has been successfully placed.');
-                    // window.location.href = '@Url.Action("OrderSummary", "Order")'; // Redirect to order summary page
+                     window.location.href = '@Url.Action("OrderSummary", "Order")'; // Redirect to My Orders page
                 },
                 error: function (error) {
                     alert('Error placing order.');
