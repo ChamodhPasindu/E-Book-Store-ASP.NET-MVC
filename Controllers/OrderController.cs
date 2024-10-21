@@ -3,6 +3,7 @@ using EBookStore.Models;
 using EBookStore.Util;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace EBookStore.Controllers
 {
@@ -16,10 +17,27 @@ namespace EBookStore.Controllers
             _context = context;
         }
 
-        public IActionResult Index()
+
+        //GET : My Orders view with Customer Orders
+        public async Task<IActionResult> MyOrder()
         {
-            return View();
+            var userId = HttpContext.Session.GetString("UserID");
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Account"); // Redirect to login if not logged in
+            }
+
+            // Fetch orders placed by the customer, ordered by status
+            var orders = await _context.Orders
+                .Where(o => o.UserID == int.Parse(userId))
+                .OrderBy(o => o.OrderStatus == "Pending" ? 0 : 1) //Sort Pending orders at the top
+                .Include(o => o.OrderDetails)
+                .ThenInclude(od => od.Book)
+                .ToListAsync();
+
+            return View(orders);
         }
+
 
         // GET : Cart View
         public IActionResult Cart()
@@ -156,6 +174,99 @@ namespace EBookStore.Controllers
             HttpContext.Session.SetString("CartItemCount", "0");
 
             return Ok(new { message = "Order placed successfully." });
+        }
+
+        // POST : Cancel Order Method
+        [HttpPost]
+        public async Task<IActionResult> CancelOrder(int orderId)
+        {
+            // Retrieve the order and its details
+            var order = await _context.Orders
+                .Include(o => o.OrderDetails)
+                .ThenInclude(od => od.Book)
+                .FirstOrDefaultAsync(o => o.OrderID == orderId);
+
+            if (order == null || order.OrderStatus != "Pending")
+            {
+                return BadRequest("Order not found or cannot be canceled.");
+            }
+
+            // Add the quantities back to the stock
+            foreach (var orderDetail in order.OrderDetails)
+            {
+                var book = await _context.Books.FindAsync(orderDetail.BookID);
+
+                if (book != null)
+                {
+                    // Add back the order quantity to the book's stock
+                    book.QuantityInStock += orderDetail.Quantity;
+                    _context.Books.Update(book);
+                }
+            }
+
+            // Mark the order as canceled
+            order.OrderStatus = "Canceled";
+            _context.Orders.Update(order);
+
+            // Save the changes to the database
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Order canceled and stock updated successfully." });
+        }
+
+        // POST : Order Again for Cancel Orders Method
+        [HttpPost]
+        public async Task<IActionResult> OrderAgain(int orderId)
+        {
+            // Retrieve the existing canceled order and its details
+            var order = await _context.Orders
+                .Include(o => o.OrderDetails)
+                .ThenInclude(od => od.Book)
+                .FirstOrDefaultAsync(o => o.OrderID == orderId);
+
+            if (order == null || order.OrderStatus != "Canceled")
+            {
+                return BadRequest(new { message = "Order not found or it is not canceled." });
+            }
+
+            // Check stock for each item in the order
+            foreach (var orderDetail in order.OrderDetails)
+            {
+                var book = await _context.Books.FindAsync(orderDetail.BookID);
+                if (book == null)
+                {
+                    return BadRequest(new { message = $"Book with ID {orderDetail.BookID} not found." });
+                }
+
+                // Check if enough stock is available for each item
+                if (book.QuantityInStock < orderDetail.Quantity)
+                {
+                    return BadRequest(new { message = $"Insufficient stock for '{book.Title}'. Only {book.QuantityInStock} items left." });
+                }
+            }
+
+            // Update the order status and decrease stock if all items have enough stock
+            foreach (var orderDetail in order.OrderDetails)
+            {
+                var book = await _context.Books.FindAsync(orderDetail.BookID);
+
+                // Decrease stock and update the book record
+                if (book != null && book.QuantityInStock >= orderDetail.Quantity)
+                {
+                    book.QuantityInStock -= orderDetail.Quantity;
+                    _context.Books.Update(book);
+                }
+            }
+
+            // Update order status to "Pending"
+            order.OrderStatus = "Pending";
+            order.OrderDate = DateTime.Now; // Update the order date if needed
+            _context.Orders.Update(order);
+
+            // Save changes to the database
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Order placed again successfully." });
         }
     }
 

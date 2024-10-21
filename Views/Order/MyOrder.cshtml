@@ -1,0 +1,85 @@
+﻿@model IEnumerable<EBookStore.Models.Order>
+
+<h2>My Orders</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Order Date</th>
+            <th>Total Amount</th>
+            <th>Status</th>
+            <th>Items</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var order in Model)
+        {
+            <tr>
+                <td>@order.OrderID</td>
+                <td>@order.OrderDate.ToString("yyyy-MM-dd")</td>
+                <td>@order.TotalAmount.ToString("C", new System.Globalization.CultureInfo("en-LK"))</td>
+                <td>@order.OrderStatus</td>
+                <td>
+                    <ul>
+                        @foreach (var detail in order.OrderDetails)
+                        {
+                            <li>@detail.Book.Title x @detail.Quantity - @detail.Price.ToString("C", new System.Globalization.CultureInfo("en-LK")) - <a href="@Url.Action("BookDetail", "Books", new { id = detail.Book.BookID})" >View Book</a></li>
+                        }
+                    </ul>
+                </td>
+                <td>
+                    @if (order.OrderStatus == "Pending")
+                    {
+                        <button class="btn btn-danger" onclick="cancelOrder(@order.OrderID)">Cancel Order</button>
+                    }
+                    else if (order.OrderStatus == "Delivered")
+                    {
+                        <a href="@Url.Action( "BookStore","Books")" class="btn btn-info">Leave a Review</a>
+                    }
+                    else if (order.OrderStatus == "Canceled")
+                    {
+                        <button class="btn btn-primary" onclick="OrderAgain(@order.OrderID)">Order Again</button>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script>
+    function cancelOrder(orderId) {
+        if (confirm("Are you sure you want to cancel this order?")) {
+            $.ajax({
+                url: '/Order/CancelOrder',
+                type: 'POST',
+                data: { orderId: orderId},
+                success: function (response) {
+                    alert("Order canceled successfully.");
+                    location.reload(); 
+                },
+                error: function (xhr, status, error) {
+                    alert('Failed to cancel the order.: ' + error);
+                }
+            });
+        }
+    }
+
+    function OrderAgain(orderId) {
+        if (confirm("Are you sure you want to place this order again?")) {
+            $.ajax({
+                url: '/Order/OrderAgain',
+                type: 'POST',
+                data: { orderId: orderId },
+                success: function (response) {
+                    alert("Order Placed successfully.");
+                    location.reload();
+                },
+                error: function (xhr, status, error) {
+                    alert('Failed to Placed the order.: ' + error);
+                }
+            });
+        }
+    }
+</script>
