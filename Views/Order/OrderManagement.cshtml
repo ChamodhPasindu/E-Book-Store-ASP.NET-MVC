@@ -1,0 +1,128 @@
+﻿@model IEnumerable<Order>
+
+<div class="container">
+	<h3>Order Management</h3>
+	<table class="table table-bordered">
+		<thead>
+			<tr>
+				<th>Order ID</th>
+				<th>Customer</th>
+				<th>Order Date</th>
+				<th>Status</th>
+				<th>Total Amount</th>
+				<th>Action</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var order in Model)
+			{
+				<tr>
+					<td>@order.OrderID</td>
+					<td>@order.User.FirstName @order.User.LastName</td>
+					<td>@order.OrderDate.ToShortDateString()</td>
+					<td>@order.OrderStatus</td>
+					<td>@order.TotalAmount.ToString("C", new System.Globalization.CultureInfo("en-LK"))</td>
+					<td>
+						<button class="btn btn-secondary" onclick="ViewOrderDetails(@order.OrderID)">View Order</button>
+						@if (order.OrderStatus == "Pending")
+						{
+							<button class="btn btn-info" onclick="ChangeOrderStatus(@order.OrderID, 'Shipped')">Mark as Shipped</button>
+						}
+						else if (order.OrderStatus == "Shipped")
+						{
+							<button class="btn btn-success" onclick="ChangeOrderStatus(@order.OrderID, 'Delivered')">Mark as Delivered</button>
+						}
+						else if (order.OrderStatus == "Delivered")
+						{
+							
+						}
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+</div>
+
+<!-- Modal for Viewing Order Details -->
+<div class="modal fade" id="orderDetailsModal" tabindex="-1" role="dialog" aria-labelledby="orderDetailsModalLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="orderDetailsModalLabel">Order Details</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="$('#orderDetailsModal').modal('hide')">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<p><strong>Customer Name:</strong> <span id="customerName"></span></p>
+				<p><strong>Customer Address:</strong> <span id="customerAddress"></span></p>
+				<p><strong>Order Date:</strong> <span id="orderDate"></span></p>
+				<p><strong>Order Status:</strong> <span id="orderStatus"></span></p>
+				<h5>Order Items</h5>
+				<ul id="orderItems"></ul>
+				<p><strong>Total Amount:</strong> <span id="totalAmount"></span></p>
+			</div>
+		</div>
+	</div>
+</div>
+@section Scripts {
+	<script>
+		function ChangeOrderStatus(orderId, newStatus) {
+			$.ajax({
+				url: '/Order/ChangeOrderStatus',
+				type: 'POST',
+				data: {
+					orderId: orderId,
+					newStatus: newStatus
+				},
+				success: function (response) {
+					alert("Order status updated successfully.");
+					location.reload(); // Reload the page to see the updated status
+				},
+				error: function (error) {
+					alert("An error occurred while updating the order status."+ error);
+				}
+			});
+		}
+
+		// Function to view order details in a modal
+		function ViewOrderDetails(orderId) {
+			$.ajax({
+				url: '/Order/GetOrderDetails',
+				type: 'GET',
+				data: {
+					orderId: orderId
+				},
+				success: function (response) {
+					// Populate modal with order details
+					$('#customerName').text(response.customerName);
+					$('#customerAddress').text(response.customerAddress);
+					$('#orderDate').text(response.orderDate.split('T')[0]);
+					$('#orderStatus').text(response.orderStatus);
+
+					const formattedAmount = new Intl.NumberFormat('en-LK', {
+						style: 'currency',
+						currency: 'LKR',
+					}).format(response.totalAmount);
+
+					$('#totalAmount').text(formattedAmount);
+
+					$('#orderItems').empty();
+
+					// Populate order items
+					console.log(response);
+					console.log(response.orderItems);
+					response.orderItems?.forEach(item => {
+					 	$('#orderItems').append('<li>' + item.bookTitle + ' x ' + item.quantity + ' - ' + item.price.toFixed(2) + '</li>');
+					 });
+
+					// Show the modal
+					$('#orderDetailsModal').modal('show');
+				},
+				error: function (xhr, status, error) {
+					alert("An error occurred while fetching the order details."+ error);
+				}
+			});
+		}
+	</script>
+}
