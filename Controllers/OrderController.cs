@@ -20,6 +20,7 @@ namespace EBookStore.Controllers
 
 
         //GET : My Orders view with Customer Orders
+        [HttpGet]
         public async Task<IActionResult> MyOrder()
         {
             var userId = HttpContext.Session.GetString("UserID");
@@ -39,16 +40,17 @@ namespace EBookStore.Controllers
             return View(orders);
         }
 
-
         // GET : Cart View
+        [HttpGet]
         public IActionResult Cart()
         {
             var cart = HttpContext.Session.GetObjectFromJson<List<CartItemViewModel>>("Cart") ?? new List<CartItemViewModel>();
             return View(cart);
         }
 
-		// GET : Manage Order View with Order Data
-		public async Task<IActionResult> OrderManagement()
+        // GET : Manage Order View with Order Data
+        [HttpGet]
+        public async Task<IActionResult> OrderManagement()
 		{
 			// Fetch all orders and include necessary navigation properties
 			var orders = await _context.Orders
@@ -299,9 +301,9 @@ namespace EBookStore.Controllers
 			return Ok();
 		}
 
-
         // GET : Get Order Details By ID
-		public async Task<IActionResult> GetOrderDetails(int orderId)
+        [HttpGet]
+        public async Task<IActionResult> GetOrderDetails(int orderId)
 		{
 			var order = await _context.Orders
 		.Include(o => o.User)

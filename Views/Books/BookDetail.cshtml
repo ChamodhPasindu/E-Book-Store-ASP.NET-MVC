@@ -17,7 +17,7 @@
         <div class="col-md-8">
             <p><strong>Author:</strong> @Model.Book.Author</p>
             <p><strong>Category:</strong> @Model.Book.Category</p>
-            <p><strong>Price:</strong> LKR @Model.Book.Price</p>
+            <p><strong>Price:</strong> @Model.Book.Price.ToString("C", new System.Globalization.CultureInfo("en-LK"))</p>
             <p><strong>Quantity in stock:</strong> @Model.Book.QuantityInStock</p>
 
             <div class="quantity-controls mb-3">

@@ -34,12 +34,14 @@ namespace EBookStore.Controllers
         }
 
         // GET: Login View
+        [HttpGet]
         public IActionResult Login()
         {
             return View();
         }
 
         // GET: Logout View
+        [HttpGet]
         public IActionResult Logout()
         {
             // Clear session
@@ -48,6 +50,7 @@ namespace EBookStore.Controllers
         }
 
         // GET: CustomerManagement View With All Customers
+        [HttpGet]
         public IActionResult CustomerManagement()
         {
             var users = _context.Users
@@ -62,12 +65,14 @@ namespace EBookStore.Controllers
         }
 
         // GET: Settings View
+        [HttpGet]
         public IActionResult Setting()
         {
             return View();
         }
 
         // GET : Report Page With Complete Orders Data
+        [HttpGet]
         public async Task<IActionResult> Report(DateTime? fromDate, DateTime? toDate)
         {
             var query = _context.Orders
@@ -164,8 +169,9 @@ namespace EBookStore.Controllers
             return View();
         }
 
-		// GET: Customer By ID
-		public async Task<IActionResult> GetCustomer(int? id)
+        // GET: Customer By ID
+        [HttpGet]
+        public async Task<IActionResult> GetCustomer(int? id)
 		{
 			if (id == null)
 			{
@@ -196,7 +202,6 @@ namespace EBookStore.Controllers
 			}
 			return Json(new { success = false });
 		}
-
 
         // POST : Update User Details Method
         [HttpPost]
@@ -264,8 +269,8 @@ namespace EBookStore.Controllers
             return RedirectToAction("Setting");
         }
 
-
         // GET : Download Order Details By ID
+        [HttpGet]
         public async Task<IActionResult> DownloadOrder(int orderId)
         {
             var order = await _context.Orders
@@ -316,6 +321,7 @@ namespace EBookStore.Controllers
         }
 
         // GET : Download All Books
+        [HttpGet]
         public async Task<IActionResult> DownloadBooks()
         {
             var books = await _context.Books.Where(b => b.IsActive).ToListAsync();
@@ -352,6 +358,7 @@ namespace EBookStore.Controllers
         }
 
         // GET : Download All Customers
+        [HttpGet]
         public async Task<IActionResult> DownloadCustomers()
         {
             var customers = await _context.Users.Where(b => b.IsActive).ToListAsync();

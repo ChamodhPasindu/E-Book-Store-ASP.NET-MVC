@@ -1,32 +1,228 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model HomeViewModel
+
+@{
+	ViewData["Title"] = "Home Page";
 }
 
 <div class="container">
-    <div class="row">
-        <!-- Section for Sign Up and Sign In Buttons -->
-        <div class="col-md-12 text-center mt-5">
-            <a href="/Account/Login" class="btn btn-primary mx-2">Login</a>
-            <a href="/Account/Register" class="btn btn-success mx-2">Register</a>
-        </div>
-    </div>
+	<!-- Section for Sign Up and Sign In Buttons -->
+	<div class="row justify-content-center mt-5">
+		<div class="col-md-6 text-center">
+			<h1 class="display-4">Welcome to BookStore</h1>
+			<p class="lead">Your one-stop solution for all kinds of books.</p>
+			<div class="mt-4">
+				<a href="/Account/Login" class="btn btn-outline-primary btn-lg mx-2">
+					<i class="fas fa-sign-in-alt"></i> Login
+				</a>
+				<a href="/Account/Register" class="btn btn-outline-success btn-lg mx-2">
+					<i class="fas fa-user-plus"></i> Register
+				</a>
+			</div>
+		</div>
+	</div>
 
-    <div class="row mt-5">
-        <!-- Store details: About, Services, Book Categories, Customers, Trending Authors -->
-        <div class="col-md-12">
-            <h2>About Us</h2>
-            <p>Details about the store, services, etc.</p>
+	<!-- About Us Section -->
+	<div class="row mt-5 mb-5">
+		<div class="col-md-12">
+			<div class="card border-0 shadow-lg p-4">
+				<h2 class="mb-3">About Us</h2>
+				<p>We offer a wide collection of books ranging from fiction to non-fiction, science to history, and many more. Our goal is to provide quality books to readers of all ages, from kids to higher academics.</p>
+				<hr>
+				<div class="row text-center">
+					<div class="col-md-4">
+						<h5><i class="fas fa-book fa-2x text-primary"></i></h5>
+						<h5 class="mt-2">10,000+ Books</h5>
+					</div>
+					<div class="col-md-4">
+						<h5><i class="fas fa-users fa-2x text-primary"></i></h5>
+						<h5 class="mt-2">5,000+ Customers</h5>
+					</div>
+					<div class="col-md-4">
+						<h5><i class="fas fa-star fa-2x text-primary"></i></h5>
+						<h5 class="mt-2">Top Authors</h5>
+						<p class="text-muted">J.K. Rowling, George R.R. Martin, and many more.</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 
-            <h3>Book Categories</h3>
-            <ul>
-                <li>Fiction</li>
-                <li>Non-Fiction</li>
-                <li>Science</li>
-                <!-- Add more categories -->
-            </ul>
+	<!-- Book Carousel Section -->
+	<div class="row mt-5">
+		<div class="col-md-12">
+			<h3 class="text-center">Featured Books</h3>
 
-            <h4>Total Customers: 5000+</h4>
-            <h4>Trending Authors: J.K. Rowling, George R.R. Martin, etc.</h4>
-        </div>
-    </div>
+			<div id="bookCarousel" class="carousel slide" data-bs-ride="carousel">
+				<div class="carousel-inner">
+					@for (int i = 0; i < Model.Books.Count(); i += 3)
+					{
+						<div class="carousel-item @(i == 0 ? "active" : "")">
+							<div class="row">
+								@for (int j = i; j < i + 3 && j < Model.Books.Count(); j++)
+								{
+									<div class="col-md-4">
+										<div class="card shadow-sm">
+											<img src="data:@Model.Books[j].ImageMimeType;base64,@Convert.ToBase64String(@Model.Books[j].ImageData!)" class="card-img-top" alt="Book Image" style="height: 250px; object-fit: contain;">
+											<div class="card-body text-center">
+												<h5 class="card-title">@Model.Books[j].Title</h5>
+												<p class="card-text">@Model.Books[j].Author</p>
+												<p class="card-text">Price: @Model.Books[j].Price.ToString("C", new System.Globalization.CultureInfo("en-LK"))</p>
+												<a href="@Url.Action("BookDetail", "Books", new { id = Model.Books[j].BookID })" class="btn btn-primary">View Details</a>
+											</div>
+										</div>
+									</div>
+								}
+							</div>
+						</div>
+					}
+				</div>
+
+				<!-- Carousel Controls -->
+				<button class="carousel-control-prev" type="button" data-bs-target="#bookCarousel" data-bs-slide="prev">
+					<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+					<span class="visually-hidden">Previous</span>
+				</button>
+				<button class="carousel-control-next" type="button" data-bs-target="#bookCarousel" data-bs-slide="next">
+					<span class="carousel-control-next-icon" aria-hidden="true"></span>
+					<span class="visually-hidden">Next</span>
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Book Categories Section -->
+	<div class="row mt-5">
+		<div class="col-md-12">
+			<div class="card border-0 shadow-lg p-4">
+				<h3 class="mb-3 text-center">Book Categories</h3>
+				<div class="row justify-content-center">
+					<div class="col-md-3">
+						<div class="card shadow-sm">
+							<div class="card-body text-center">
+								<i class="fas fa-book-open fa-2x text-primary"></i>
+								<h5 class="mt-3">Fiction</h5>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-3">
+						<div class="card shadow-sm">
+							<div class="card-body text-center">
+								<i class="fas fa-flask fa-2x text-primary"></i>
+								<h5 class="mt-3">Science</h5>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-3">
+						<div class="card shadow-sm">
+							<div class="card-body text-center">
+								<i class="fas fa-pen-alt fa-2x text-primary"></i>
+								<h5 class="mt-3">Non-Fiction</h5>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-3">
+						<div class="card shadow-sm">
+							<div class="card-body text-center">
+								<i class="fas fa-pen-alt fa-2x text-primary"></i>
+								<h5 class="mt-3">Classics</h5>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-3 mt-3">
+						<div class="card shadow-sm">
+							<div class="card-body text-center">
+								<i class="fas fa-pen-alt fa-2x text-primary"></i>
+								<h5 class="mt-3">Children’s Literature</h5>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-3 mt-3">
+						<div class="card shadow-sm">
+							<div class="card-body text-center">
+								<i class="fas fa-pen-alt fa-2x text-primary"></i>
+								<h5 class="mt-3">Fantasy</h5>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-3 mt-3">
+						<div class="card shadow-sm">
+							<div class="card-body text-center">
+								<i class="fas fa-pen-alt fa-2x text-primary"></i>
+								<h5 class="mt-3">Mystery & Thriller</h5>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-3 mt-3">
+						<div class="card shadow-sm">
+							<div class="card-body text-center">
+								<i class="fas fa-pen-alt fa-2x text-primary"></i>
+								<h5 class="mt-3">Graphic Novels & Comics</h5>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Trending Authors Section -->
+	<div class="row mt-5">
+		<div class="col-md-12">
+			<div class="card border-0 shadow-lg p-4">
+				<h4 class="text-center">Trending Authors</h4>
+				<div class="d-flex justify-content-center mt-3">
+					<span class="badge bg-primary mx-2 p-3">J.K. Rowling</span>
+					<span class="badge bg-primary mx-2 p-3">George R.R. Martin</span>
+					<span class="badge bg-primary mx-2 p-3">Stephen King</span>
+					<span class="badge bg-primary mx-2 p-3">Gabriel García Márquez</span>
+					<span class="badge bg-primary mx-2 p-3">Ernest Hemingway</span>
+					<span class="badge bg-primary mx-2 p-3">Virginia Woolf </span>
+					<span class="badge bg-primary mx-2 p-3">Isaac Asimov</span>
+					<span class="badge bg-primary mx-2 p-3">J.R.R. Tolkien</span>
+					<span class="badge bg-primary mx-2 p-3">Ursula K. Le Guin</span>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Contact Us Section -->
+	<div class="row mt-5 mb-5">
+		<div class="col-md-12">
+			<div class="card border-0 shadow-lg p-4">
+				<h4>Contact Us</h4>
+				<p>If you have any inquiries or need further information, feel free to reach out to us. We're happy to assist you with any questions about our bookstore and services.</p>
+
+				<div class="row">
+					<!-- Address Section -->
+					<div class="col-md-6">
+						<h5>Our Address</h5>
+						<p>
+							<strong>Book Store Colombo</strong><br>
+							123 Main Street<br>
+							Colombo, Sri Lanka<br>
+						</p>
+					</div>
+
+					<!-- Contact Details Section -->
+					<div class="col-md-6">
+						<h5>Contact Details</h5>
+						<p>
+							<strong>Phone:</strong> +94 11 234 5678<br>
+							<strong>Email:</strong> info@bookstorecolombo.com
+						</p>
+					</div>
+				</div>
+				<hr>
+				<div class="row mt-4">
+					<div class="col-md-12">
+						<h5>About Our Store</h5>
+						<p>
+							At Book Store Colombo, we offer a wide range of books across various genres, including fiction, non-fiction, science, and more. Our aim is to provide a diverse selection for readers of all ages and interests. Visit our store or contact us to learn more about the latest arrivals and trending authors.
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
+

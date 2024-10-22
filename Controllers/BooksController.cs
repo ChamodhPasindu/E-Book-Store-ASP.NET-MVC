@@ -20,6 +20,7 @@ namespace EBookStore.Controllers
         }
 
         // GET: BookManagement View With All Books
+        [HttpGet]
         public IActionResult BookManagement()
         {
             var books = _context.Books
@@ -34,6 +35,7 @@ namespace EBookStore.Controllers
         }
 
         // GET: BookStore View With All Books
+        [HttpGet]
         public IActionResult BookStore()
         {
             var books = _context.Books
@@ -48,6 +50,7 @@ namespace EBookStore.Controllers
         }
 
         // GET: BookDetail View By ID
+        [HttpGet]
         public async Task<IActionResult> BookDetail(int id)
         {
             var book = await _context.Books
@@ -86,6 +89,7 @@ namespace EBookStore.Controllers
         }
 
         // GET: Book By ID
+        [HttpGet]
         public async Task<IActionResult> GetBook(int? id)
         {
             if (id == null)

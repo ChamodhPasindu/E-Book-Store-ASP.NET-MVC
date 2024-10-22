@@ -18,18 +18,22 @@ namespace EBookStore.Controllers
 
 
         // GET : Home View 
+        [HttpGet]
         public IActionResult Index()
         {
-            // Retrieve the cart item count from the session
-            int cartItemCount = HttpContext.Session.GetInt32("CartItemCount") ?? 0;
 
-            // Pass the count to the view via ViewData
-            ViewData["CartItemCount"] = cartItemCount;
-
-            return View();
-        }
+			var books = _context.Books
+							 .Where(b => b.IsActive) 
+							 .ToList();
+			if (books == null)
+			{
+				return View(new List<Book>());
+			}
+			return View(new HomeViewModel { Books = books });
+		}
 
         // GET : Admin Dashboard View With Relevent Data
+        [HttpGet]
         public async Task<IActionResult> AdminDashboard()
         {
             // Fetch the total counts of active entities
