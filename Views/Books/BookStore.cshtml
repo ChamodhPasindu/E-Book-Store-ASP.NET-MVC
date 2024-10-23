@@ -1,16 +1,25 @@
 ﻿@model IEnumerable<EBookStore.Models.Book>
 
 <div class="container mt-4">
+	<!-- Title Section -->
 	<div class="row">
 		<div class="col-md-12">
-			<h2 class="text-center">Book Store</h2>
+			<h2 class="text-center text-uppercase display-6 fw-bold">Our Collection</h2>
+			<p class="text-center text-muted">Explore a wide range of books from different genres.</p>
 		</div>
 	</div>
 
 	<!-- Search Field -->
 	<div class="row mb-4">
 		<div class="col-md-6 mx-auto">
-			<input type="text" id="searchInput" class="form-control" placeholder="Search books by title or author" />
+			<div class="input-group shadow-sm">
+				<input type="text" id="searchInput" class="form-control border-0" placeholder="Search books by title or author" />
+				<div class="input-group-append">
+					<span class="input-group-text bg-dark text-white border-0">
+						<i class="bi bi-search"></i>
+					</span>
+				</div>
+			</div>
 		</div>
 	</div>
 
@@ -21,11 +30,10 @@
 		</div>
 	</div>
 
-	<!-- Book Cards -->
+	<!-- Book Cards Section -->
 	<div class="row" id="bookCards">
 		@if (!Model.Any())
 		{
-			<!-- Display message if no books in database -->
 			<div class="col-md-12 text-center">
 				<p class="alert alert-warning">No books available.</p>
 			</div>
@@ -35,16 +43,33 @@
 			@foreach (var book in Model)
 			{
 				<div class="col-md-4 mb-4 book-card">
-					<div class="card h-100 shadow">
-						<img src="data:@book.ImageMimeType;base64,@Convert.ToBase64String(book.ImageData!)" class="card-img-top" alt="@book.Title" />
-						<div class="card-body">
-							<h5 class="card-title">@book.Title</h5>
-							<p class="card-text"><strong>Author:</strong> @book.Author</p>
-							<p class="card-text"><strong>Price:</strong> @book.Price.ToString("C", new System.Globalization.CultureInfo("en-LK"))</p>
+					<div class="card h-100 border-0 shadow-sm">
+						<!-- Book Image -->
+						<img src="data:@book.ImageMimeType;base64,@Convert.ToBase64String(book.ImageData!)" class="card-img-top" alt="@book.Title" style="height: 300px; object-fit: contain; border-radius: 5px 5px 0 0;" />
+
+						<!-- Book Info -->
+						<div class="card-body text-center">
+							<h5 class="card-title fw-bold">@book.Title</h5>
+							<p class="card-text text-muted">@book.Author</p>
+							<p class="card-text fw-bold text-primary">@book.Price.ToString("C", new System.Globalization.CultureInfo("en-LK"))</p>
+							<!-- Quantity Control -->
+							<div class="input-group mb-3 justify-content-center">
+								<button class="btn btn-outline-secondary" type="button" onclick="decreaseQuantity(@book.BookID)">-</button>
+								<input type="text" id="quantity_@book.BookID" class="form-control text-center" value="1" max="@book.QuantityInStock" style="width: 50px;" readonly />
+								<button class="btn btn-outline-secondary" type="button" onclick="increaseQuantity(@book.BookID,@book.QuantityInStock)">+</button>
+							</div>
 						</div>
-						<div class="card-footer d-flex justify-content-between">
-							<button class="btn btn-primary" onclick="addToCart(@book.BookID)">Add to Cart</button>
-							<a href="@Url.Action("BookDetail", "Books", new { id = book.BookID })" class="btn btn-info">View Book</a>
+
+						<!-- Buttons -->
+						<div class="card-footer bg-transparent border-0">
+							<div class="d-grid gap-2 d-md-flex justify-content-md-between">
+								<button class="btn btn-outline-primary" onclick="addToCart(@book.BookID)">
+									<i class="fas fa-shopping-cart"></i> Add to Cart
+								</button>
+								<a href="@Url.Action("BookDetail", "Books", new { id = book.BookID })" class="btn btn-outline-secondary">
+									<i class="fas fa-info-circle"></i> View Book
+								</a>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -53,9 +78,27 @@
 	</div>
 </div>
 
-
 @section Scripts {
 	<script>
+		// Increase quantity function
+		function increaseQuantity(bookId, availableQty) {
+			var quantityInput = document.getElementById("quantity_" + bookId);
+			var currentQuantity = parseInt(quantityInput.value);
+			if (currentQuantity < availableQty) {
+				quantityInput.value = currentQuantity + 1;
+			}
+			
+		}
+
+		// Decrease quantity function
+		function decreaseQuantity(bookId) {
+			var quantityInput = document.getElementById("quantity_" + bookId);
+			var currentQuantity = parseInt(quantityInput.value);
+			if (currentQuantity > 1) {
+				quantityInput.value = currentQuantity - 1;
+			}
+		}
+
 		$(document).ready(function () {
 			$('#searchInput').on('keyup', function () {
 				var value = $(this).val().toLowerCase();
@@ -87,12 +130,12 @@
 		});
 
 		function addToCart(bookId) {
-			var quantity = 1;
+			var quantity = document.getElementById("quantity_" + bookId);
 
 			$.ajax({
 				url: '/Order/AddToCart',
 				type: 'POST',
-				data: { bookId: bookId, quantity: quantity },
+				data: { bookId: bookId, quantity: parseInt(quantity.value) },
 				success: function (response) {
 					alert('Book added to cart!');
 					location.reload();
