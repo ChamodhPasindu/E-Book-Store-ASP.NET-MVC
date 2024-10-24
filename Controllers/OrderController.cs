@@ -51,19 +51,19 @@ namespace EBookStore.Controllers
         // GET : Manage Order View with Order Data
         [HttpGet]
         public async Task<IActionResult> OrderManagement()
-		{
-			// Fetch all orders and include necessary navigation properties
-			var orders = await _context.Orders
-				.Include(o => o.User)
-				.Include(o => o.OrderDetails)
-				.ThenInclude(od => od.Book)
-				.ToListAsync();
+        {
+            // Fetch all orders and include necessary navigation properties
+            var orders = await _context.Orders
+                .Include(o => o.User)
+                .Include(o => o.OrderDetails)
+                .ThenInclude(od => od.Book)
+                .ToListAsync();
 
-			return View(orders); // Passing the list of orders to the view
-		}
+            return View(orders); // Passing the list of orders to the view
+        }
 
-		// POST : Items Add to Cart Method With View
-		[HttpPost]
+        // POST : Items Add to Cart Method With View
+        [HttpPost]
         public async Task<IActionResult> AddToCart(int bookId, int quantity)
         {
             var cart = HttpContext.Session.GetObjectFromJson<List<CartItemViewModel>>("Cart") ?? new List<CartItemViewModel>();
@@ -88,6 +88,25 @@ namespace EBookStore.Controllers
 
             HttpContext.Session.SetObjectAsJson("Cart", cart);
             return RedirectToAction("BookStore", "Books");
+        }
+
+
+        // POST : Update Items in Cart Method With View
+        [HttpPost]
+        public IActionResult UpdateQuantity(int bookId, int quantity)
+        {
+            var cart = HttpContext.Session.GetObjectFromJson<List<CartItemViewModel>>("Cart") ?? new List<CartItemViewModel>();
+            var cartItem = cart.FirstOrDefault(x => x.BookId == bookId);
+
+            if (cartItem != null)
+            {
+                cartItem.Quantity = quantity;
+                HttpContext.Session.SetObjectAsJson("Cart", cart);
+                return RedirectToAction("Cart");
+
+            }
+            return RedirectToAction("Cart");
+
         }
 
         // POST : Items Remove From Cart Method With View
@@ -150,7 +169,7 @@ namespace EBookStore.Controllers
             };
 
             _context.Orders.Add(order);
-           
+
 
             // Save the order details
             foreach (var item in cartItems)
@@ -172,10 +191,10 @@ namespace EBookStore.Controllers
 
                 var orderDetail = new OrderDetail
                 {
-                    
+
                     Price = item.book!.Price,
                     Quantity = item.Quantity,
-                    Order= order,
+                    Order = order,
                     Book = book!
                 };
 
@@ -285,57 +304,57 @@ namespace EBookStore.Controllers
         }
 
         // POST : Change Order Status Method
-		[HttpPost]
-		public async Task<IActionResult> ChangeOrderStatus(int orderId, string newStatus)
-		{
-			var order = await _context.Orders.FindAsync(orderId);
-			if (order == null)
-			{
-				return BadRequest("Order not found.");
-			}
+        [HttpPost]
+        public async Task<IActionResult> ChangeOrderStatus(int orderId, string newStatus)
+        {
+            var order = await _context.Orders.FindAsync(orderId);
+            if (order == null)
+            {
+                return BadRequest("Order not found.");
+            }
 
-			// Update order status
-			order.OrderStatus = newStatus;
-			await _context.SaveChangesAsync();
+            // Update order status
+            order.OrderStatus = newStatus;
+            await _context.SaveChangesAsync();
 
-			return Ok();
-		}
+            return Ok();
+        }
 
         // GET : Get Order Details By ID
         [HttpGet]
         public async Task<IActionResult> GetOrderDetails(int orderId)
-		{
-			var order = await _context.Orders
-		.Include(o => o.User)
-		.Include(o => o.OrderDetails)
-		.ThenInclude(od => od.Book)
-		.FirstOrDefaultAsync(o => o.OrderID == orderId);
+        {
+            var order = await _context.Orders
+        .Include(o => o.User)
+        .Include(o => o.OrderDetails)
+        .ThenInclude(od => od.Book)
+        .FirstOrDefaultAsync(o => o.OrderID == orderId);
 
-			if (order == null)
-			{
-				return NotFound("Order not found.");
-			}
+            if (order == null)
+            {
+                return NotFound("Order not found.");
+            }
 
-			// Map order to ViewModel
-			var orderViewModel = new OrderViewModel
-			{
-				OrderID = order.OrderID,
-				OrderStatus = order.OrderStatus,
-				OrderDate = order.OrderDate,
-				TotalAmount = order.TotalAmount,
-				CustomerName = $"{order.User.FirstName} {order.User.LastName}",
-				CustomerEmail = order.User.Email,
+            // Map order to ViewModel
+            var orderViewModel = new OrderViewModel
+            {
+                OrderID = order.OrderID,
+                OrderStatus = order.OrderStatus,
+                OrderDate = order.OrderDate,
+                TotalAmount = order.TotalAmount,
+                CustomerName = $"{order.User.FirstName} {order.User.LastName}",
+                CustomerEmail = order.User.Email,
                 CustomerAddress = order.User.Address,
-				OrderItems = order.OrderDetails.Select(od => new OrderItemViewModel
-				{
-					BookTitle = od.Book.Title,
-					Quantity = od.Quantity,
-					Price = od.Price
-				}).ToList() ?? new List<OrderItemViewModel>()
-			};
+                OrderItems = order.OrderDetails.Select(od => new OrderItemViewModel
+                {
+                    BookTitle = od.Book.Title,
+                    Quantity = od.Quantity,
+                    Price = od.Price
+                }).ToList() ?? new List<OrderItemViewModel>()
+            };
 
-			return Json(orderViewModel);
-		}
-	}
+            return Json(orderViewModel);
+        }
+    }
 
 }

@@ -1,85 +1,150 @@
-﻿@model List<CartItemViewModel> 
+﻿@model IEnumerable<EBookStore.Models.CartItemViewModel>
 
-<h2>Your Cart</h2>
+<div class="container mt-4">
+    <h2 class="text-center text-uppercase display-6 fw-bold">Your Cart</h2>
 
-@if (Model == null || !Model.Any())
-{
-    <div class="col-md-12 text-center">
-        <p class="alert alert-warning">Your cart is empty.</p>
-    </div>
-}
-else
-{
-    <div class="table-responsive">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Book Image</th> 
-                    <th>Book Title</th>
-                    <th>Quantity</th>
-                    <th>Price</th>
-                    <th>Total</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
+    @if (Model == null || !Model.Any())
+    {
+        <div class="col-md-12 text-center">
+            <p class="alert alert-warning">Your cart is empty.</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive shadow-sm mt-4">
+            <table class="table table-hover align-middle text-center">
+                <thead class="table-dark">
                     <tr>
-                        <td>
-                            <img src="data:@item.book!.ImageMimeType;base64,@Convert.ToBase64String(@item.book.ImageData!)" alt="@item.book!.Title" class="img-thumbnail" style="width: 100px; height: auto;" />
-                        </td>
-                        <td>@item.book!.Title</td>
-                        <td>
-                            <input type="number" min="1" max="@item.book.QuantityInStock" value="@item.Quantity" />
-                        </td>
-                        <td>LKR @item.book!.Price</td>
-                        <td>LKR @(item.book!.Price * item.Quantity)</td>
-                        <td>
-                            <form asp-action="RemoveFromCart" method="post">
-                                <input type="hidden" name="bookId" value="@item.book.BookID" />
-                                <button type="submit" class="btn btn-danger">Remove</button>
-                            </form>
-                        </td>
+                        <th scope="col">Book</th>
+                        <th scope="col">Title</th>
+                        <th scope="col">Quantity</th>
+                        <th scope="col">Price</th>
+                        <th scope="col">Total</th>
+                        <th scope="col">Actions</th>
                     </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-    <div>
-        <strong>Total: LKR @Model.Sum(x => (x.Quantity *  x.book!.Price))</strong>
-    </div>
-    <button class="btn btn-primary" onclick="placeOrder()">Proceed to Checkout</button>
-}
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <!-- Book Image -->
+                            <td class="align-middle">
+                                <img src="data:@item.book!.ImageMimeType;base64,@Convert.ToBase64String(@item.book.ImageData!)" 
+                                     alt="@item.book!.Title" class="img-fluid rounded" style="width: 80px; height: auto;" />
+                            </td>
+
+                            <!-- Book Title -->
+                            <td class="align-middle">
+                                <a href="@Url.Action("BookDetail", "Books", new { id = @item.book!.BookID })" class="text-decoration-none">
+                                    <strong>@item.book!.Title</strong>
+                                </a>
+                            </td>
+
+                            <!-- Quantity Input with Buttons -->
+                            <td class="align-middle">
+                                <div class="input-group justify-content-center" style="width: 120px;">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="decreaseQuantity(@item.book!.BookID)">-</button>
+                                    <input id="quantity_@item.book!.BookID" type="text" min="1" max="@item.book.QuantityInStock" value="@item.Quantity" class="form-control text-center" readonly />
+                                    <button class="btn btn-outline-secondary" type="button" onclick="increaseQuantity(@item.book!.BookID,@item.book!.QuantityInStock)">+</button>
+                                </div>
+                            </td>
+
+                            <!-- Price -->
+                            <td class="align-middle">@item.book!.Price.ToString("C", new System.Globalization.CultureInfo("en-LK"))</td>
+
+                            <!-- Total Price for Book -->
+                            <td class="align-middle">
+                                <strong> @String.Format(new System.Globalization.CultureInfo("en-LK"), "LKR {0:C}", item.book!.Price * item.Quantity)</strong>
+                            </td>
+
+                            <!-- Remove Button -->
+                            <td class="align-middle">
+                                <form asp-action="RemoveFromCart" method="post">
+                                    <input type="hidden" name="bookId" value="@item.book.BookID" />
+                                    <button type="submit" class="btn btn-outline-danger">
+                                        <i class="fas fa-trash-alt"></i> Remove
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Cart Total and Checkout -->
+        <div class="mt-4 d-flex justify-content-between align-items-center">
+            <strong class="fs-5">Total: LKR @Model.Sum(x => (x.Quantity * x.book!.Price))</strong>
+            <button class="btn btn-primary btn-lg" onclick="placeOrder()">
+                <i class="fas fa-shopping-cart"></i> Proceed to Checkout
+            </button>
+        </div>
+    }
+</div>
 
 @section Scripts {
     <script>
+        // Increase quantity function
+		function increaseQuantity(bookId, availableQty) {
+			var quantityInput = document.getElementById("quantity_" + bookId);
+			var currentQuantity = parseInt(quantityInput.value);
+			if (currentQuantity < availableQty) {
+				quantityInput.value = currentQuantity + 1;
+                updateCartQuantity(bookId, quantityInput.value);
+			}
+			
+		}
+
+		// Decrease quantity function
+		function decreaseQuantity(bookId) {
+			var quantityInput = document.getElementById("quantity_" + bookId);
+			var currentQuantity = parseInt(quantityInput.value);
+			if (currentQuantity > 1) {
+				quantityInput.value = currentQuantity - 1;
+                updateCartQuantity(bookId, quantityInput.value);
+			}
+		}
+
+        // Update New quantity function
+        function updateCartQuantity(bookId, newQuantity) {
+            $.ajax({
+                url: '/Order/UpdateQuantity',
+                type: 'POST',
+                data: { bookId: bookId, quantity: newQuantity },
+                success: function (response) {
+                    location.reload();
+                },
+                error: function (xhr, status, error) {
+                    alert('Error adding book to cart: ' + error);
+                }
+            });
+        }
+
+        // Proceed to checkout with confirmation
         function placeOrder() {
-            var isLoggedIn = '@Context.Session.GetString("Role")'; // Get user role from session
+            var isLoggedIn = '@Context.Session.GetString("Role")';
 
             if (!isLoggedIn) {
-                alert("You must logged into the system before place order");
-                // User is not logged in, redirect to login
+                alert("You must be logged in to place an order.");
                 window.location.href = '@Url.Action("Login", "Account")';
             } else {
-                // Show confirmation alert
                 if (confirm("Do you want to confirm the order?")) {
-                    // Proceed to place the order
                     confirmOrder();
                 }
             }
         }
 
+        // Confirm order placement
         function confirmOrder() {
             $.ajax({
                 url: '@Url.Action("PlaceOrder", "Order")',
                 type: 'POST',
                 success: function (response) {
-                    alert('Order has been successfully placed.');
-                     window.location.href = '@Url.Action("MyOrder", "Order")'; // Redirect to My Orders page
+                    alert('Order placed successfully.');
+                    window.location.href = '@Url.Action("MyOrder", "Order")';
                 },
                 error: function (error) {
-                    alert('Error placing order.');
+                    alert('Error placing the order.');
                 }
             });
         }
