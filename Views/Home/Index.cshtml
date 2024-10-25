@@ -10,14 +10,17 @@
 		<div class="col-md-6 text-center">
 			<h1 class="display-4">Welcome to BookStore</h1>
 			<p class="lead">Your one-stop solution for all kinds of books.</p>
-			<div class="mt-4">
-				<a href="/Account/Login" class="btn btn-outline-primary btn-lg mx-2">
-					<i class="fas fa-sign-in-alt"></i> Login
-				</a>
-				<a href="/Account/Register" class="btn btn-outline-success btn-lg mx-2">
-					<i class="fas fa-user-plus"></i> Register
-				</a>
-			</div>
+			@if (Context.Session.GetString("Role") == null)
+			{
+				<div class="mt-4">
+					<a href="/Account/Login" class="btn btn-outline-primary btn-lg mx-2">
+						<i class="fas fa-sign-in-alt"></i> Login
+					</a>
+					<a href="/Account/Register" class="btn btn-outline-success btn-lg mx-2">
+						<i class="fas fa-user-plus"></i> Register
+					</a>
+				</div>
+			}
 		</div>
 	</div>
 
@@ -67,7 +70,9 @@
 												<h5 class="card-title">@Model.Books[j].Title</h5>
 												<p class="card-text">@Model.Books[j].Author</p>
 												<p class="card-text">Price: @Model.Books[j].Price.ToString("C", new System.Globalization.CultureInfo("en-LK"))</p>
-												<a href="@Url.Action("BookDetail", "Books", new { id = Model.Books[j].BookID })" class="btn btn-primary">View Details</a>
+												<a href="@Url.Action("BookDetail", "Books", new { id = Model.Books[j].BookID })" class="btn btn-outline-secondary">
+													<i class="bi-book me-1"></i>View Book
+												</a>
 											</div>
 										</div>
 									</div>

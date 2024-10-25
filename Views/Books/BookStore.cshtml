@@ -42,7 +42,8 @@
 		{
 			@foreach (var book in Model)
 			{
-				<div class="col-md-4 mb-4 book-card">
+				var averageRating = book.FeedBacks.Any() ? book.FeedBacks.Average(f => f.Rating) : 0; // Calculate average rating
+				<div class="col-md-3 mb-4 book-card">
 					<div class="card h-100 border-0 shadow-sm">
 						<!-- Book Image -->
 						<img src="data:@book.ImageMimeType;base64,@Convert.ToBase64String(book.ImageData!)" class="card-img-top" alt="@book.Title" style="height: 300px; object-fit: contain; border-radius: 5px 5px 0 0;" />
@@ -51,7 +52,26 @@
 						<div class="card-body text-center">
 							<h5 class="card-title fw-bold">@book.Title</h5>
 							<p class="card-text text-muted">@book.Author</p>
-							<p class="card-text fw-bold text-primary">@book.Price.ToString("C", new System.Globalization.CultureInfo("en-LK"))</p>
+							<p class="card-text fw-bold text-secondary">@book.Price.ToString("C", new System.Globalization.CultureInfo("en-LK"))</p>
+
+							<!-- Average Rating -->
+							<div class="mb-2">
+								@for (var i = 1; i <= 5; i++)
+								{
+									@if (i <= averageRating)
+									{
+										<!-- Full Star -->
+										<i class="bi-star-fill" style="color: #FFD700;"></i>
+									}
+									else
+									{
+										<!-- Empty Star -->
+										<i class="bi-star" style="color: #FFD700;"></i>
+									}
+								}
+								<span class="text-muted">(@book.FeedBacks.Count())</span>
+							</div>
+
 							<!-- Quantity Control -->
 							<div class="input-group mb-3 justify-content-center">
 								<button class="btn btn-outline-secondary" type="button" onclick="decreaseQuantity(@book.BookID)">-</button>
@@ -61,13 +81,13 @@
 						</div>
 
 						<!-- Buttons -->
-						<div class="card-footer bg-transparent border-0">
-							<div class="d-grid gap-2 d-md-flex justify-content-md-between">
-								<button class="btn btn-outline-primary" onclick="addToCart(@book.BookID)">
-									<i class="fas fa-shopping-cart"></i> Add to Cart
+						<div class="card-footer bg-transparent border-0 mb-2">
+							<div class="d-grid gap-2 d-md-flex justify-content-md-evenly">
+								<button class="btn btn-outline-danger" onclick="addToCart(@book.BookID)">
+									<i class="bi-cart"></i> Add to Cart
 								</button>
 								<a href="@Url.Action("BookDetail", "Books", new { id = book.BookID })" class="btn btn-outline-secondary">
-									<i class="fas fa-info-circle"></i> View Book
+									<i class="bi-book"></i> View Book
 								</a>
 							</div>
 						</div>
@@ -80,6 +100,7 @@
 
 @section Scripts {
 	<script>
+
 		// Increase quantity function
 		function increaseQuantity(bookId, availableQty) {
 			var quantityInput = document.getElementById("quantity_" + bookId);
@@ -87,7 +108,7 @@
 			if (currentQuantity < availableQty) {
 				quantityInput.value = currentQuantity + 1;
 			}
-			
+
 		}
 
 		// Decrease quantity function

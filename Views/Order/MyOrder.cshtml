@@ -1,52 +1,76 @@
 ﻿@model IEnumerable<EBookStore.Models.Order>
 
-<h2>My Orders</h2>
+<h2 class="text-center text-uppercase display-6 fw-bold">My Orders</h2>
 
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Order ID</th>
-            <th>Order Date</th>
-            <th>Total Amount</th>
-            <th>Status</th>
-            <th>Items</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
+<div class="container">
+     @if (Model == null || !Model.Any())
+    {
+        <div class="col-md-12 text-center">
+            <p class="alert alert-warning">You have not done any order yet.</p>
+        </div>
+    }
+    else
+    {
+    <div class="row">
         @foreach (var order in Model)
         {
-            <tr>
-                <td>@order.OrderID</td>
-                <td>@order.OrderDate.ToString("yyyy-MM-dd")</td>
-                <td>@order.TotalAmount.ToString("C", new System.Globalization.CultureInfo("en-LK"))</td>
-                <td>@order.OrderStatus</td>
-                <td>
-                    <ul>
-                        @foreach (var detail in order.OrderDetails)
+            <div class="col-md-12 mb-4">
+                <div class="card border-1 shadow-sm">
+                    <div class="card-header">
+                        <h5 class="mb-0">Order ID: @order.OrderID</h5>
+                        <small class="text-muted">@order.OrderDate.ToString("yyyy-MM-dd")</small>
+                    </div>
+                    <div class="card-body">
+                        <h6 class="card-title">Total Amount: @order.TotalAmount.ToString("C", new System.Globalization.CultureInfo("en-LK"))</h6>
+                            <h6 class="card-subtitle mb-2 text-muted">
+                                Status: <span class="badge @(
+                                    order.OrderStatus == "Pending" ? "bg-warning" :
+                                    order.OrderStatus == "Shipped" ? "bg-primary" :
+                                    order.OrderStatus == "Delivered" ? "bg-success" :
+                                    order.OrderStatus == "Canceled" ? "bg-danger" : "bg-secondary"
+)">
+                                    @order.OrderStatus
+                                </span>
+                            </h6>
+                        <ul class="list-group">
+                            @foreach (var detail in order.OrderDetails)
+                            {
+                                <li class="list-group-item">
+                                    <div class="d-flex justify-content-start align-items-center">
+                                        <img src="data:@detail.Book.ImageMimeType;base64,@Convert.ToBase64String(detail.Book.ImageData!)" alt="@detail.Book.Title" class="img-thumbnail" style="width: 75px; height: 75px; margin-right: 10px;" />
+                                        <div>
+                                            <a href="@Url.Action("BookDetail", "Books", new { id = detail.Book.BookID })" class="text-decoration-none text-secondary">
+                                                <strong>@detail.Book.Title</strong> x @detail.Quantity - @detail.Price.ToString("C", new System.Globalization.CultureInfo("en-LK"))
+
+                                            </a>
+                                            <br />
+                                            
+                                        </div>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                    <div class="card-footer text-right d-flex justify-content-end">
+                        @if (order.OrderStatus == "Pending")
                         {
-                            <li>@detail.Book.Title x @detail.Quantity - @detail.Price.ToString("C", new System.Globalization.CultureInfo("en-LK")) - <a href="@Url.Action("BookDetail", "Books", new { id = detail.Book.BookID})" >View Book</a></li>
+                            <button class="btn btn-outline-danger" onclick="cancelOrder(@order.OrderID)">Cancel Order</button>
                         }
-                    </ul>
-                </td>
-                <td>
-                    @if (order.OrderStatus == "Pending")
-                    {
-                        <button class="btn btn-danger" onclick="cancelOrder(@order.OrderID)">Cancel Order</button>
-                    }
-                    else if (order.OrderStatus == "Delivered")
-                    {
-                        <a href="@Url.Action( "BookStore","Books")" class="btn btn-info">Leave a Review</a>
-                    }
-                    else if (order.OrderStatus == "Canceled")
-                    {
-                        <button class="btn btn-primary" onclick="OrderAgain(@order.OrderID)">Order Again</button>
-                    }
-                </td>
-            </tr>
+                        else if (order.OrderStatus == "Delivered")
+                        {
+                            <a href="@Url.Action("BookStore", "Books")" class="btn btn-outline-warning">Leave a Review</a>
+                        }
+                        else if (order.OrderStatus == "Canceled")
+                        {
+                            <button class="btn btn-outline-success" onclick="OrderAgain(@order.OrderID)">Order Again</button>
+                        }
+                    </div>
+                </div>
+            </div>
         }
-    </tbody>
-</table>
+    </div>
+    }
+</div>
 
 <script>
     function cancelOrder(orderId) {
@@ -54,13 +78,13 @@
             $.ajax({
                 url: '/Order/CancelOrder',
                 type: 'POST',
-                data: { orderId: orderId},
+                data: { orderId: orderId },
                 success: function (response) {
                     alert("Order canceled successfully.");
-                    location.reload(); 
+                    location.reload();
                 },
                 error: function (xhr, status, error) {
-                    alert('Failed to cancel the order.: ' + error);
+                    alert('Failed to cancel the order: ' + error);
                 }
             });
         }
@@ -73,13 +97,14 @@
                 type: 'POST',
                 data: { orderId: orderId },
                 success: function (response) {
-                    alert("Order Placed successfully.");
+                    alert("Order placed successfully.");
                     location.reload();
                 },
                 error: function (xhr, status, error) {
-                    alert('Failed to Placed the order.: ' + error);
+                    alert('Failed to place the order: ' + error);
                 }
             });
         }
     }
 </script>
+
