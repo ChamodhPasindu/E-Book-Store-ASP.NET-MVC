@@ -1,61 +1,90 @@
 ﻿@model UserSettingsViewModel
 
-<h2>Settings</h2>
+<h2 class="text-center text-uppercase display-6 fw-bold">Settings</h2>
 
 @if (TempData["SuccessMessage"] != null)
 {
-    <div class="alert alert-success">
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
         @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 }
 
 @if (TempData["ErrorMessage"] != null)
 {
-    <div class="alert alert-danger">
+    <div class="alert  alert-danger alert-dismissible fade show" role="alert">
         @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 }
 
-<!-- Form for updating user details -->
-<h3>Update Details</h3>
-<form asp-action="UpdateDetails" method="post">
-    <input type="hidden" asp-for="UserID" value="@Context.Session.GetString("UserID")" />
+<div class="text-center mb-4">
+    <img src="@Url.Content("~/images/user.png")"
+         alt="User Profile Image"
+         class="img-thumbnail rounded-circle"
+         style="width: 100px; height: 100px;" />
+</div>
 
-    <div class="form-group">
-        <label asp-for="FirstName">First Name</label>
-        <input asp-for="FirstName" class="form-control" value="@Context.Session.GetString("FirstName")" required />
+<div class="container">
+    <div class="row" style="display: flex;">
+        <div class="col-md-6 mb-4">
+            <!-- Card for updating user details -->
+            <div class="card shadow-sm" style="height: 100%;">
+                <div class="card-header">
+                    <h5 class="mb-0">Update Details</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="UpdateDetails" method="post">
+                        <input type="hidden" asp-for="UserID" value="@Context.Session.GetString("UserID")" />
+
+                        <div class="form-group">
+                            <label asp-for="FirstName" class="form-label">First Name</label>
+                            <input asp-for="FirstName" class="form-control" value="@Context.Session.GetString("FirstName")" required />
+                        </div>
+
+                        <div class="form-group mt-2">
+                            <label asp-for="LastName" class="form-label">Last Name</label>
+                            <input asp-for="LastName" class="form-control" value="@Context.Session.GetString("LastName")" required />
+                        </div>
+
+                        <div class="form-group mt-2">
+                            <label asp-for="Email" class="form-label">Email</label>
+                            <input asp-for="Email" class="form-control" type="email" value="@Context.Session.GetString("Email")" required />
+                        </div>
+
+                        <div class="form-group mt-2">
+                            <label asp-for="Address" class="form-label">Address</label>
+                            <input asp-for="Address" value="@Context.Session.GetString("Address")" class="form-control" />
+                        </div>
+
+                        <button type="submit" class="btn btn-outline-primary mt-3">Update Details</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <!-- Card for updating password -->
+            <div class="card shadow-sm" style="height: 100%;">
+                <div class="card-header">
+                    <h5 class="mb-0">Update Password</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="ChangePassword" method="post">
+                        <div class="form-group">
+                            <label for="CurrentPassword" class="form-label">Current Password</label>
+                            <input type="password" id="CurrentPassword" name="CurrentPassword" class="form-control" required />
+                        </div>
+
+                        <div class="form-group mt-2">
+                            <label for="NewPassword" class="form-label">New Password</label>
+                            <input type="password" id="NewPassword" name="NewPassword" class="form-control" required />
+                        </div>
+
+                        <button type="submit" class="btn btn-outline-primary mt-3">Update Password</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
-
-    <div class="form-group">
-        <label asp-for="LastName">Last Name</label>
-        <input asp-for="LastName" class="form-control" value="@Context.Session.GetString("LastName")" required />
-    </div>
-
-    <div class="form-group">
-        <label asp-for="Email">Email</label>
-        <input asp-for="Email" class="form-control" type="email" value="@Context.Session.GetString("Email")" required />
-    </div>
-
-    <div class="form-group">
-        <label asp-for="Address">Address</label>
-        <input asp-for="Address" value="@Context.Session.GetString("Address")" class="form-control" />
-    </div>
-
-    <button type="submit" class="btn btn-primary">Update Details</button>
-</form>
-
-<!-- Form for updating password -->
-<h3>Update Password</h3>
-<form asp-action="ChangePassword" method="post">
-    <div class="form-group">
-        <label for="CurrentPassword">Current Password</label>
-        <input type="password" id="CurrentPassword" name="CurrentPassword" class="form-control" required />
-    </div>
-
-    <div class="form-group">
-        <label for="NewPassword">New Password</label>
-        <input type="password" id="NewPassword" name="NewPassword" class="form-control" required />
-    </div>
-
-    <button type="submit" class="btn btn-primary">Update Password</button>
-</form>
+</div>

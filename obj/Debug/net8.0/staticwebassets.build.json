@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "o9c/WWBky+3SUgUmVd2+tdxYIoIYzmI5M9rj/tkZsFY=",
+  "Hash": "eBWJLvOwVbQT4T6rRJ2ZaBpIaU0/bvCtpHM7YOcGyYM=",
   "Source": "EBookStore",
   "BasePath": "_content/EBookStore",
   "Mode": "Default",
@@ -91,6 +91,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\favicon.ico"
+    },
+    {
+      "Identity": "D:\\Others\\TOPUP\\AD Assignment 2\\EBookStore\\wwwroot\\images\\user.png",
+      "SourceId": "EBookStore",
+      "SourceType": "Discovered",
+      "ContentRoot": "D:\\Others\\TOPUP\\AD Assignment 2\\EBookStore\\wwwroot\\",
+      "BasePath": "_content/EBookStore",
+      "RelativePath": "images/user.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\images\\user.png"
     },
     {
       "Identity": "D:\\Others\\TOPUP\\AD Assignment 2\\EBookStore\\wwwroot\\js\\site.js",
