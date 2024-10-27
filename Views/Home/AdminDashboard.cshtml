@@ -1,109 +1,186 @@
 ﻿@model AdminDashboardViewModel
 
-<div class="admin-dashboard">
-    <div class="row">
-        <!-- Summary Cards -->
-        <div class="col-lg-3 col-md-6">
-            <div class="card text-white bg-primary mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Total Users</h5>
-                    <p class="card-text">@Model.TotalUsers</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-3 col-md-6">
-            <div class="card text-white bg-success mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Total Orders</h5>
-                    <p class="card-text">@Model.TotalOrders</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-3 col-md-6">
-            <div class="card text-white bg-info mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Books Available</h5>
-                    <p class="card-text">@Model.TotalBooks</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-3 col-md-6">
-            <div class="card text-white bg-warning mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Pending Orders</h5>
-                    <p class="card-text">@Model.PendingOrders</p>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="admin-dashboard container-fluid">
+	<h2 class="text-center text-uppercase display-6 fw-bold mb-4">Dashboard</h2>
 
-    <!-- Recent Activity Section -->
-    <div class="row mt-4">
-        <div class="col-lg-6">
-            <div class="card">
-                <div class="card-header">
-                    Recent Orders
-                </div>
-                <div class="card-body">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Order ID</th>
-                                <th>User</th>
-                                <th>Total Amount</th>
-                                <th>Status</th>
-                                <th>Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var order in Model.RecentOrders)
-                            {
-                                <tr>
-                                    <td>@order.OrderID</td>
-                                    <td>@order.User.Email</td>
-                                    <td>@order.TotalAmount</td>
-                                    <td>@order.OrderStatus</td>
-                                    <td>@order.OrderDate.ToShortDateString()</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+	<div class="row g-4">
+		<!-- Summary Cards -->
+		<div class="col-lg-2 col-md-3">
+			<div class="card border-0  shadow-sm h-100">
+				<div class="card-body text-center">
+					<i class="bi bi-people display-5 text-primary"></i>
+					<h5 class="card-title mt-3 text-primary">Total Users</h5>
+					<p class="card-text fs-4 fw-bold text-primary">@Model.TotalUsers</p>
+				</div>
+			</div>
+		</div>
 
-        <!-- Recent Users Section -->
-        <div class="col-lg-6">
-            <div class="card">
-                <div class="card-header">
-                    Recent Users
-                </div>
-                <div class="card-body">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>User ID</th>
-                                <th>Email</th>
-                                <th>Registration Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var user in Model.RecentUsers)
-                            {
-                                <tr>
-                                    <td>@user.UserID</td>
-                                    <td>@user.Email</td>
-                                    <td>@user.RegistrationDate.ToShortDateString()</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
+		<div class="col-lg-2 col-md-3">
+			<div class="card border-0 shadow-sm h-100">
+				<div class="card-body text-center">
+					<i class="bi bi-book display-5 text-info"></i>
+					<h5 class="card-title mt-3 text-info">Books Available</h5>
+					<p class="card-text fs-4 fw-bold text-info">@Model.TotalBooks</p>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-lg-2 col-md-3">
+			<div class="card border-0 shadow-sm h-100">
+				<div class="card-body text-center">
+					<i class="bi bi-exclamation-circle display-5 text-warning"></i>
+					<h5 class="card-title mt-3 text-warning">Pending Orders</h5>
+					<p class="card-text fs-4 fw-bold text-warning">@Model.PendingOrders</p>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-lg-2 col-md-3">
+			<div class="card border-0 shadow-sm h-100">
+				<div class="card-body text-center">
+					<i class="bi bi-truck display-5 text-success"></i>
+					<h5 class="card-title mt-3 text-success">Delivered Orders</h5>
+					<p class="card-text fs-4 fw-bold text-success">@Model.DeliveredOrders</p>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-lg-2 col-md-3">
+			<div class="card border-0 shadow-sm h-100">
+				<div class="card-body text-center">
+					<i class="bi bi-send-check display-5 text-secondary"></i>
+					<h5 class="card-title mt-3 text-secondary">Shipped Orders</h5>
+					<p class="card-text fs-4 fw-bold text-secondary">@Model.ShippedOrders</p>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-lg-2 col-md-3">
+			<div class="card border-0 shadow-sm h-100">
+				<div class="card-body text-center">
+					<i class="bi bi-x-circle display-5 text-danger"></i>
+					<h5 class="card-title mt-3 text-danger">Canceled Orders</h5>
+					<p class="card-text fs-4 fw-bold text-danger">@Model.CanceledOrders</p>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="row g-4 mt-4">
+		<!-- Daily Earnings Card -->
+		<div class="col-lg-3 col-md-6">
+			<div class="card border-0 shadow-sm h-100">
+				<div class="card-body text-center">
+					<h5 class="card-title mt-3 text-secondary">
+						Daily Earnings</h5>
+					<p class="card-text fs-4 fw-bold text-dark">@Model.DailyEarnings.ToString("C", new System.Globalization.CultureInfo("en-LK"))</p>
+				</div>
+			</div>
+		</div>
+
+		<!-- Weekly Earnings Card -->
+		<div class="col-lg-3 col-md-6">
+			<div class="card border-0 shadow-sm h-100">
+				<div class="card-body text-center">
+					<h5 class="card-title mt-3 text-secondary">Weekly Earnings</h5>
+					<p class="card-text fs-4 fw-bold text-dark">@Model.WeeklyEarnings.ToString("C", new System.Globalization.CultureInfo("en-LK"))</p>
+				</div>
+			</div>
+		</div>
+
+		<!-- Monthly Earnings Card -->
+		<div class="col-lg-3 col-md-6">
+			<div class="card border-0 shadow-sm h-100">
+				<div class="card-body text-center">
+					<h5 class="card-title mt-3 text-secondary">Monthly Earnings</h5>
+					<p class="card-text fs-4 fw-bold text-dark">@Model.MonthlyEarnings.ToString("C", new System.Globalization.CultureInfo("en-LK"))</p>
+				</div>
+			</div>
+		</div>
+
+		<!-- Yearly Earnings Card -->
+		<div class="col-lg-3 col-md-6">
+			<div class="card border-0 shadow-sm h-100">
+				<div class="card-body text-center">
+					<h5 class="card-title mt-3 text-secondary">Yearly Earnings</h5>
+					<p class="card-text fs-4 fw-bold text-dark">@Model.YearlyEarnings.ToString("C", new System.Globalization.CultureInfo("en-LK"))</p>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Recent Activity Section -->
+	<div class="row mt-5 g-4">
+		<div class="col-lg-6">
+			<div class="card border-0 shadow-sm h-100">
+				<div class="card-header bg-light">
+					<h5 class="mb-0"><i class="bi bi-receipt-cutoff me-2"></i>Recent Orders</h5>
+				</div>
+				<div class="card-body p-0">
+					<table class="table table-hover mb-0">
+						<thead class="bg-light">
+							<tr>
+								<th>Order ID</th>
+								<th>User</th>
+								<th>Total</th>
+								<th>Status</th>
+								<th>Date</th>
+							</tr>
+						</thead>
+						<tbody>
+							@foreach (var order in Model.RecentOrders)
+							{
+								<tr>
+									<td>@order.OrderID</td>
+									<td>@order.User.Email</td>
+									<td>@order.TotalAmount.ToString("C", new System.Globalization.CultureInfo("en-LK"))</td>
+									<td>
+										<span class="badge @(
+                                            order.OrderStatus == "Pending" ? "bg-warning" :
+                                            order.OrderStatus == "Shipped" ? "bg-primary" :
+                                            order.OrderStatus == "Delivered" ? "bg-success" :
+                                            "bg-danger"
+                                        )">
+											@order.OrderStatus
+										</span>
+									</td>
+									<td>@order.OrderDate.ToShortDateString()</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+
+		<!-- Recent Users Section -->
+		<div class="col-lg-6">
+			<div class="card border-0 shadow-sm h-100">
+				<div class="card-header bg-light">
+					<h5 class="mb-0"><i class="bi bi-person-circle me-2"></i>Recent Users</h5>
+				</div>
+				<div class="card-body p-0">
+					<table class="table table-hover mb-0">
+						<thead class="bg-light">
+							<tr>
+								<th>User ID</th>
+								<th>Email</th>
+								<th>Registration Date</th>
+							</tr>
+						</thead>
+						<tbody>
+							@foreach (var user in Model.RecentUsers)
+							{
+								<tr>
+									<td>@user.UserID</td>
+									<td>@user.Email</td>
+									<td>@user.RegistrationDate.ToShortDateString()</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
-
-@section Scripts {
-    
-}
