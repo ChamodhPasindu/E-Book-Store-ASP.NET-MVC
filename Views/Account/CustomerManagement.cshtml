@@ -1,70 +1,105 @@
-﻿@model IEnumerable<EBookStore.Models.User>
+﻿@model IEnumerable<User>
 
-@{
-	ViewData["Title"] = "Admin Customer Management";
-}
-
-<div class="container mt-5">
-	<h2>Customer Management</h2>
-
+<div class="container">
+	<h2 class="text-center text-uppercase display-6 fw-bold">Customer Management</h2>
 	<!-- Book Table -->
-	<table class="table table-striped">
-		<thead>
-			<tr>
-				<th>First Name</th>
-				<th>Last Name</th>
-				<th>Email</th>
-				<th>Phone Number</th>
-				<th>Address</th>
-				<th>Registration Date</th>
-				<th>Actions</th>
-			</tr>
-		</thead>
-		<tbody>
-			@foreach (var customer in Model)
-			{
-				<tr>
-					<td>@customer.FirstName</td>
-					<td>@customer.LastName</td>
-					<td>@customer.Email</td>
-					<td>@customer.PhoneNumber</td>
-					<td>@customer.Address</td>
-					<td>@customer.RegistrationDate</td>
-					<td>@customer.Address</td>
-					<td>
-						<button class="btn btn-info" data-toggle="modal" data-target="#viewCustomerModal" onclick="viewBook(@customer.UserID)">View</button>
-						<button class="btn btn-danger" data-toggle="modal" data-target="#deleteConfirmationModal" data-book-id="@customer.UserID" onclick="deleteConfirm(@customer.UserID)">Delete</button>
-					</td>
-				</tr>
-			}
-		</tbody>
-	</table>
+	<div class="card shadow-sm">
+		<div class="card-header text-secondary">
+			<h5 class="mb-0">Customer List</h5>
+		</div>
+		<div class="card-body">
+			<table id="customersTable" class="table table-striped table-bordered table-hover">
+				<thead class="table-dark">
+					<tr>
+						<th>First Name</th>
+						<th>Last Name</th>
+						<th>Email</th>
+						<th>Phone Number</th>
+						<th>Address</th>
+						<th>Registration Date</th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var customer in Model)
+					{
+						<tr>
+							<td>@customer.FirstName</td>
+							<td>@customer.LastName</td>
+							<td>@customer.Email</td>
+							<td>@customer.PhoneNumber</td>
+							<td>@customer.Address</td>
+							<td>@customer.RegistrationDate</td>
+							<td>
+								<button class="btn btn-outline-secondary btn-sm" data-toggle="modal" data-target="#viewCustomerModal" onclick="viewCustomer(@customer.UserID)">
+									<i class="bi-eye"></i>
+								</button>
+								<button class="btn btn-outline-danger btn-sm" data-toggle="modal" data-target="#deleteConfirmationModal" data-book-id="@customer.UserID" onclick="deleteConfirm(@customer.UserID)"><i class="bi-trash"></i></button>
+								<button class="btn btn-outline-warning btn-sm" data-toggle="modal" data-target="#reviewModal" onclick="showReviews(@customer.UserID)">
+									<i class="bi-star"></i>
+								</button>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
 </div>
 
 <!-- View Customer Modal -->
- <div class="modal fade" id="viewCustomerModal" tabindex="-1" role="dialog" aria-labelledby="viewCustomerModalLabel" aria-hidden="true">
-	<div class="modal-dialog" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title" id="viewCustomerModalLabel">Book Details</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="$('#viewCustomerModal').modal('hide')">
-					<span aria-hidden="true">&times;</span>
-				</button>
+<div class="modal fade" id="viewCustomerModal" tabindex="-1" role="dialog" aria-labelledby="viewCustomerModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content border-0 shadow-lg rounded-4">
+			<div class="modal-header bg-secondary text-white">
+				<h5 class="modal-title" id="viewCustomerModalLabel"><i class="bi bi-person-circle me-2"></i>Customer Details</h5>
+				<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
-			<div class="modal-body">
-				<p><strong>First Name:</strong> <span id="viewFirstName"></span></p>
-				<p><strong>Last Name:</strong> <span id="viewLastName"></span></p>
-				<p><strong>Email:</strong> <span id="viewEmail"></span></p>
-				<p><strong>Phone Number:</strong> <span id="viewPhoneNumber"></span></p>
-				<p><strong>Registration Date:</strong> <span id="viewRegistrationnDate"></span></p>
-				<p><strong>Address:</strong> <span id="viewAddress"></span></p>
+			<div class="modal-body p-4">
+				<div class="row">
+					<div class="col-md-6 mb-3">
+						<p><strong><i class="bi bi-person text-secondary me-2"></i>First Name:</strong> <span id="viewFirstName"></span></p>
+						<p><strong><i class="bi bi-person text-secondary me-2"></i>Last Name:</strong> <span id="viewLastName"></span></p>
+						<p><strong><i class="bi bi-envelope text-secondary me-2"></i>Email:</strong> <span id="viewEmail"></span></p>
+					</div>
+
+					<div class="col-md-6 mb-3">
+						<p><strong><i class="bi bi-telephone text-secondary me-2"></i>Phone Number:</strong> <span id="viewPhoneNumber"></span></p>
+						<p><strong><i class="bi bi-calendar-event text-secondary me-2"></i>Registration Date:</strong> <span id="viewRegistrationnDate"></span></p>
+						<p><strong><i class="bi bi-geo-alt text-secondary me-2"></i>Address:</strong> <span id="viewAddress"></span></p>
+					</div>
+				</div>
 			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="$('#viewCustomerModal').modal('hide')">Close</button>
+			<div class="modal-footer border-0 d-flex justify-content-center">
+				<button type="button" class="btn btn-outline-danger w-100" data-bs-dismiss="modal">Close</button>
 			</div>
 		</div>
 	</div>
-</div> 
+</div>
+
+<!-- Modal for Viewing Latest Reviews -->
+<div class="modal fade" id="reviewModal" tabindex="-1" role="dialog" aria-labelledby="reviewModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content border-0 shadow-lg rounded-4">
+			<div class="modal-header bg-secondary text-white">
+				<h5 class="modal-title" id="reviewModalLabel"><i class="bi bi-chat-left-text-fill me-2"></i>Latest Reviews</h5>
+				<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body p-4">
+				<!-- Customer Name-->
+				<h5 class="text-center text-secondary mb-4" id="reviewCustomer"></h5>
+
+				<!-- Reviews Section -->
+				<div id="reviewsContent">
+					<!-- Review items will be populated here -->
+				</div>
+			</div>
+			<div class="modal-footer border-0 d-flex justify-content-center">
+				<button type="button" class="btn btn-outline-danger w-100" data-bs-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
 
 <!-- Delete Confirmation Modal -->
 <div class="modal fade" id="deleteConfirmationModal" tabindex="-1" role="dialog" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
@@ -87,9 +122,27 @@
 	</div>
 </div>
 
+<style>
+	#customersTable_filter input {
+		padding: 5px 15px;
+		font-size: 16px;
+		width: 300px;
+		margin-bottom: 10px
+	}
+</style>
+
 @section Scripts {
 	<script>
-	function viewBook(userId) {
+		// Initialize DataTable
+		$(document).ready(function () {
+			$('#customersTable').DataTable({
+				"paging": true,
+				"searching": true,
+				"ordering": true
+			});
+		});
+
+		function viewCustomer(userId) {
 			$.get('@Url.Action("GetCustomer")', { id: userId }, function (data) {
 				console.log(data);
 
@@ -102,6 +155,37 @@
 
 				// Open the modal after setting data
 				$('#viewCustomerModal').modal('show');
+			});
+		}
+
+		function showReviews(customerId) {
+			$('#reviewsContent').empty();
+
+			$.get('@Url.Action("GetCustomer")', { id: customerId }, function (data) {
+
+				$('#reviewBookTitle').text(data.title);
+
+				const feedbacks = data.feedBacks;
+				if (feedbacks && feedbacks.length > 0) {
+					feedbacks.forEach(review => {
+						console.log(review);
+						$('#reviewsContent').append(`
+																	<div class="border rounded p-3 mb-3 shadow-sm">
+																						<p class="mb-1"> <small class="text-muted">${review.feedbackDate.split('T')[0]
+							}</small></p>
+																		<p>${review.feedbackText}</p>
+																		<div>
+																			${Array(review.rating).fill('<i class="bi bi-star-fill text-warning"></i>').join('')}
+																			${Array(5 - review.rating).fill('<i class="bi bi-star text-warning"></i>').join('')}
+																	</div>
+																	</div>
+														`);
+					});
+				} else {
+					$('#reviewsContent').html('<p class="alert alert-warning">No any review placed yet.</p>');
+				}
+
+				$('#reviewModal').modal('show');
 			});
 		}
 

@@ -21,5 +21,8 @@
         public bool IsActive { get; set; } = true; 
 
         public DateTime RegistrationDate { get; set; } = DateTime.Now;
-    }
+
+		public ICollection<FeedBack> FeedBacks { get; set; } = new List<FeedBack>();
+
+	}
 }
