@@ -1,119 +1,184 @@
-﻿@model IEnumerable<EBookStore.Models.Book>
+﻿@model IEnumerable<Book>
 
-@{
-	ViewData["Title"] = "Admin Book Management";
-}
+<div class="container">
+	<!-- Page Title -->
+	<h2 class="text-center text-uppercase display-6 fw-bold">Book Management</h2>
 
-<div class="container mt-5">
-	<h2>Book Management</h2>
+	@if (TempData["SuccessMessage"] != null)
+	{
+		<div class="alert alert-success alert-dismissible fade show" role="alert">
+			@TempData["SuccessMessage"]
+			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		</div>
+	}
 
 	<!-- Add/Edit Book Form -->
-	<div class="card mb-4">
-		<div class="card-header">
-			<h5 id="formTitle">Add New Book</h5>
+	<div class="card mb-4 shadow-sm">
+		<div class="card-header text-secondary">
+			<h5 id="formTitle" class="mb-0">Add New Book</h5>
 		</div>
 		<div class="card-body">
 			<form asp-action="AddOrEdit" method="post" enctype="multipart/form-data" id="bookForm">
 				@Html.AntiForgeryToken()
-
 				<input type="hidden" id="bookId" name="BookID" value="0" />
 
-				<div class="form-group">
-					<label for="Title">Title</label>
-					<input type="text" name="Title" class="form-control" id="Title" required />
+				<div class="row">
+					<div class="col-md-4">
+						<div class="mb-3">
+							<label for="Title" class="form-label">Title</label>
+							<input type="text" name="Title" class="form-control" id="Title" placeholder="Enter Title" required />
+						</div>
+
+						<div class="mb-3">
+							<label for="Author" class="form-label">Author</label>
+							<input type="text" name="Author" class="form-control" id="Author" placeholder="Enter Author" required />
+						</div>
+
+						<div class="mb-3">
+							<label for="Category" class="form-label">Category</label>
+							<input type="text" name="Category" class="form-control" id="Category" placeholder="Enter Category" required />
+						</div>
+					</div>
+
+					<div class="col-md-4">
+						<div class="mb-3">
+							<label for="Price" class="form-label">Price</label>
+							<input type="number" name="Price" class="form-control" id="Price" step="0.01" placeholder="Enter Price" required />
+						</div>
+
+						<div class="mb-3">
+							<label for="QuantityInStock" class="form-label">Quantity</label>
+							<input type="number" name="QuantityInStock" class="form-control" id="QuantityInStock" placeholder="Enter Quantity" required />
+						</div>
+
+						<div class="mb-3">
+							<label for="PublicationDate" class="form-label">Publication Date</label>
+							<input type="date" name="PublicationDate" class="form-control" id="PublicationDate" required />
+						</div>
+					</div>
+
+					<div class="col-md-4">
+						<div class="mb-3">
+							<label for="ImageFile" class="form-label">Book Image</label>
+							<input type="file" name="ImageFile" class="form-control" id="ImageFile" />
+						</div>
+
+						<div class="mb-3">
+							<label for="Description" class="form-label">Description</label>
+							<textarea class="form-control" id="Description" name="Description" rows="4" placeholder="Enter Description" required></textarea>
+						</div>
+					</div>
 				</div>
 
-				<div class="form-group">
-					<label for="Author">Author</label>
-					<input type="text" name="Author" class="form-control" id="Author" required />
+				<div class="d-flex col-md-12 justify-content-end">
+					<button type="submit" class="btn btn-outline-success w-50 me-2" id="submitBtn">Add Book</button>
+					<button type="button" class="btn btn-outline-danger w-50" onclick="clearForm()">Clear</button>
 				</div>
-
-				<div class="form-group">
-					<label for="Category">Category</label>
-					<input type="text" name="Category" class="form-control" id="Category" required />
-				</div>
-
-				<div class="form-group">
-					<label for="Price">Price</label>
-					<input type="number" name="Price" class="form-control" id="Price" step="0.01" required />
-				</div>
-
-				<div class="form-group">
-					<label for="QuantityInStock">Quantity</label>
-					<input type="number" name="QuantityInStock" class="form-control" id="QuantityInStock" required />
-				</div>
-
-				<div class="form-group">
-					<label for="PublicationDate">Publication Date</label>
-					<input type="date" name="PublicationDate" class="form-control" id="PublicationDate" required />
-				</div>
-
-				<div class="form-group">
-					<label for="ImageFile">Book Image</label>
-					<input type="file" name="ImageFile" class="form-control" id="ImageFile" />
-				</div>
-
-				<button type="submit" class="btn btn-primary" id="submitBtn">Add Book</button>
 			</form>
 		</div>
 	</div>
 
 	<!-- Book Table -->
-	<table class="table table-striped">
-		<thead>
-			<tr>
-				<th>Title</th>
-				<th>Author</th>
-				<th>Category</th>
-				<th>Price</th>
-				<th>Quantity</th>
-				<th>Actions</th>
-			</tr>
-		</thead>
-		<tbody>
-			@foreach (var book in Model)
-			{
-				<tr>
-					<td>@book.Title</td>
-					<td>@book.Author</td>
-					<td>@book.Category</td>
-					<td>@book.Price</td>
-					<td>@book.QuantityInStock</td>
-					<td>
-						<button class="btn btn-warning" onclick="editBook(@book.BookID)">Edit</button>
-						<button class="btn btn-info" data-toggle="modal" data-target="#viewBookModal" onclick="viewBook(@book.BookID)">View</button>
-						<button class="btn btn-danger" data-toggle="modal" data-target="#deleteConfirmationModal" data-book-id="@book.BookID" onclick="deleteConfirm(@book.BookID)">Delete</button>
-					</td>
-				</tr>
-			}
-		</tbody>
-	</table>
+	<div class="card shadow-sm">
+		<div class="card-header text-secondary">
+			<h5 class="mb-0">Book List</h5>
+		</div>
+		<div class="card-body">
+			<table id="booksTable" class="table table-striped table-bordered table-hover">
+				<thead class="table-dark">
+					<tr>
+						<th>Title</th>
+						<th>Author</th>
+						<th>Category</th>
+						<th>Price</th>
+						<th>Quantity</th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var book in Model)
+					{
+						<tr>
+							<td>@book.Title</td>
+							<td>@book.Author</td>
+							<td>@book.Category</td>
+							<td>@book.Price</td>
+							<td>@book.QuantityInStock</td>
+							<td>
+								<button class="btn btn-outline-primary btn-sm" onclick="editBook(@book.BookID)">
+									<i class="bi-pencil"></i>
+								</button>
+								<button class="btn btn-outline-secondary btn-sm" data-toggle="modal" data-target="#viewBookModal" onclick="viewBook(@book.BookID)">
+									<i class="bi-eye"></i>
+								</button>
+								<button class="btn btn-outline-danger btn-sm" data-toggle="modal" data-target="#deleteConfirmationModal" onclick="deleteConfirm(@book.BookID)">
+									<i class="bi-trash"></i>
+								</button>
+								<button class="btn btn-outline-warning btn-sm" data-toggle="modal" data-target="#reviewModal" onclick="showReviews(@book.BookID)">
+									<i class="bi-star"></i>
+								</button>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
 </div>
 
 <!-- View Book Modal -->
 <div class="modal fade" id="viewBookModal" tabindex="-1" role="dialog" aria-labelledby="viewBookModalLabel" aria-hidden="true">
-	<div class="modal-dialog" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title" id="viewBookModalLabel">Book Details</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="$('#viewBookModal').modal('hide')">
-					<span aria-hidden="true">&times;</span>
-				</button>
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content border-0 shadow-lg rounded-4">
+			<div class="modal-header bg-secondary text-white">
+				<h5 class="modal-title" id="viewBookModalLabel"><i class="bi bi-book-half me-2"></i>Book Details</h5>
+				<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
-			<div class="modal-body">
-				<p><strong>Title:</strong> <span id="viewTitle"></span></p>
-				<p><strong>Author:</strong> <span id="viewAuthor"></span></p>
-				<p><strong>Category:</strong> <span id="viewCategory"></span></p>
-				<p><strong>Price:</strong> <span id="viewPrice"></span></p>
-				<p><strong>Quantity:</strong> <span id="viewQuantity"></span></p>
-				<p><strong>Publication Date:</strong> <span id="viewPublicationDate"></span></p>
+			<div class="modal-body p-4">
+				<div class="row">
+					<!-- Book Image Section -->
+					<div class="col-md-5 text-center mb-4">
+						<img id="viewBookImage" alt="Book Image" class="img-fluid rounded shadow-sm border" style="max-width: 100%; height: auto;" />
+					</div>
 
-				<!-- Image Display -->
-				<p><strong>Image:</strong></p>
-				<img id="viewBookImage" alt="Book Image" style="max-width: 100%; height: auto;" />
+					<!-- Book Details Section -->
+					<div class="col-md-7">
+						<p class="mb-2"><strong><i class="bi bi-book text-secondary me-2"></i>Title:</strong> <span id="viewTitle"></span></p>
+						<p class="mb-2"><strong><i class="bi bi-person text-secondary me-2"></i>Author:</strong> <span id="viewAuthor"></span></p>
+						<p class="mb-2"><strong><i class="bi bi-tag text-secondary me-2"></i>Category:</strong> <span id="viewCategory"></span></p>
+						<p class="mb-2"><strong><i class="bi bi-currency-dollar text-secondary me-2"></i>Price:</strong> <span id="viewPrice"></span></p>
+						<p class="mb-2"><strong><i class="bi bi-box-seam text-secondary me-2"></i>Quantity:</strong> <span id="viewQuantity"></span></p>
+						<p class="mb-2"><strong><i class="bi bi-calendar text-secondary me-2"></i>Publication Date:</strong> <span id="viewPublicationDate"></span></p>
+						<p class="mb-2"><strong><i class="bi-chat-left-text me-2"></i>Ratings: <span id="viewRating"></span></strong> (<span id="rateCount"></span>)</p>
+					</div>
+				</div>
 			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="$('#viewBookModal').modal('hide')">Close</button>
+			<div class="modal-footer border-0 d-flex justify-content-center">
+				<button type="button" class="btn btn-outline-danger w-100" data-bs-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Modal for Viewing Latest Reviews -->
+<div class="modal fade" id="reviewModal" tabindex="-1" role="dialog" aria-labelledby="reviewModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content border-0 shadow-lg rounded-4">
+			<div class="modal-header bg-secondary text-white">
+				<h5 class="modal-title" id="reviewModalLabel"><i class="bi bi-chat-left-text-fill me-2"></i>Latest Reviews</h5>
+				<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body p-4">
+				<!-- Book Title -->
+				<h5 class="text-center text-secondary mb-4" id="reviewBookTitle"></h5>
+
+				<!-- Reviews Section -->
+				<div id="reviewsContent">
+					<!-- Review items will be populated here -->
+				</div>
+			</div>
+			<div class="modal-footer border-0 d-flex justify-content-center">
+				<button type="button" class="btn btn-outline-danger w-100" data-bs-dismiss="modal">Close</button>
 			</div>
 		</div>
 	</div>
@@ -125,7 +190,7 @@
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="deleteConfirmationModalLabel">Confirm Delete</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="$('#deleteConfirmationModal').modal('hide')">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
@@ -133,15 +198,42 @@
 				Are you sure you want to delete this book?
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="$('#deleteConfirmationModal').modal('hide')">Cancel</button>
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
 				<button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
 			</div>
 		</div>
 	</div>
 </div>
 
+<style>
+	#booksTable_filter input {
+		padding: 5px 15px;
+		font-size: 16px;
+		width: 300px;
+		margin-bottom: 10px
+	}
+</style>
+
+
 @section Scripts {
 	<script>
+		// Initialize DataTable
+		$(document).ready(function () {
+			$('#booksTable').DataTable({
+				"paging": true,
+				"searching": true,
+				"ordering": true
+			});
+		});
+
+		function clearForm() {
+			document.getElementById('bookForm').reset();
+			document.getElementById('bookId').value = 0;
+
+			document.getElementById('formTitle').textContent = 'Add New Book';
+			document.getElementById('submitBtn').textContent = 'Add Book';
+		}
+
 		function editBook(bookId) {
 			$.get('@Url.Action("GetBook")', { id: bookId }, function (data) {
 				$('#bookId').val(data.bookID);
@@ -149,6 +241,7 @@
 				$('#Author').val(data.author);
 				$('#Category').val(data.category);
 				$('#Price').val(data.price);
+				$('#Description').val(data.description);
 				$('#QuantityInStock').val(data.quantityInStock);
 				$('#PublicationDate').val(data.publicationDate.split('T')[0]);
 
@@ -159,8 +252,6 @@
 
 		function viewBook(bookId) {
 			$.get('@Url.Action("GetBook")', { id: bookId }, function (data) {
-				console.log(data);
-
 				$('#viewTitle').text(data.title);
 				$('#viewAuthor').text(data.author);
 				$('#viewCategory').text(data.category);
@@ -173,11 +264,62 @@
 					var imageSrc = 'data:' + data.imageMimeType + ';base64,' + data.imageData;
 					$('#viewBookImage').attr('src', imageSrc);
 				} else {
-					$('#viewBookImage').attr('src', ''); // Optionally set a placeholder or hide if no image is available
+					$('#viewBookImage').attr('src', '');
 				}
+
+
+				const feedbacks = data.feedBacks;
+				const averageRating = feedbacks.length
+					? feedbacks.reduce((sum, feedback) => sum + feedback.rating, 0) / feedbacks.length
+					: 0;
+
+				$('#rateCount').text(feedbacks.length);
+
+				console.log(averageRating)
+				let stars = '';
+				for (let i = 1; i <= 5; i++) {
+					stars += i <= averageRating
+						? '<i class="bi-star-fill" style="color: #FFD700;"></i>'
+						: '<i class="bi-star" style="color: #FFD700;"></i>';
+				}
+
+				console.log(stars)
+				$('#viewRating').html(stars);
+
 
 				// Open the modal after setting data
 				$('#viewBookModal').modal('show');
+			});
+		}
+
+		function showReviews(bookId) {
+			 $('#reviewsContent').empty();
+
+			$.get('@Url.Action("GetBook")', { id: bookId }, function (data) {
+
+				$('#reviewBookTitle').text(data.title);
+
+				const feedbacks = data.feedBacks;
+				if (feedbacks && feedbacks.length > 0) {
+					feedbacks.forEach(review => {
+						console.log(review);
+						$('#reviewsContent').append(`
+											<div class="border rounded p-3 mb-3 shadow-sm">
+																<p class="mb-1"> <small class="text-muted">${review.feedbackDate.split('T')[0]
+							}</small></p>
+												<p>${review.feedbackText}</p>
+												<div>
+													${Array(review.rating).fill('<i class="bi bi-star-fill text-warning"></i>').join('')}
+													${Array(5 - review.rating).fill('<i class="bi bi-star text-warning"></i>').join('')}
+												</div>
+											</div>
+										`);
+					});
+				} else {
+					$('#reviewsContent').html('<p class="alert alert-warning">No reviews available.</p>');
+				}
+
+				$('#reviewModal').modal('show');
 			});
 		}
 
