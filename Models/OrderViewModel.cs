@@ -15,6 +15,7 @@
 	public class OrderItemViewModel
 	{
 		public required string BookTitle { get; set; }
+		public required string ImageData { get; set; }
 		public int Quantity { get; set; }
 		public decimal Price { get; set; }
 	}

@@ -1,68 +1,132 @@
 ﻿@model IEnumerable<Order>
 
 <div class="container">
-	<h3>Order Management</h3>
-	<table class="table table-bordered">
-		<thead>
-			<tr>
-				<th>Order ID</th>
-				<th>Customer</th>
-				<th>Order Date</th>
-				<th>Status</th>
-				<th>Total Amount</th>
-				<th>Action</th>
-			</tr>
-		</thead>
-		<tbody>
-			@foreach (var order in Model)
-			{
-				<tr>
-					<td>@order.OrderID</td>
-					<td>@order.User.FirstName @order.User.LastName</td>
-					<td>@order.OrderDate.ToShortDateString()</td>
-					<td>@order.OrderStatus</td>
-					<td>@order.TotalAmount.ToString("C", new System.Globalization.CultureInfo("en-LK"))</td>
-					<td>
-						<button class="btn btn-secondary" onclick="ViewOrderDetails(@order.OrderID)">View Order</button>
-						@if (order.OrderStatus == "Pending")
-						{
-							<button class="btn btn-info" onclick="ChangeOrderStatus(@order.OrderID, 'Shipped')">Mark as Shipped</button>
-						}
-						else if (order.OrderStatus == "Shipped")
-						{
-							<button class="btn btn-success" onclick="ChangeOrderStatus(@order.OrderID, 'Delivered')">Mark as Delivered</button>
-						}
-					</td>
-				</tr>
-			}
-		</tbody>
-	</table>
+	<h2 class="text-center text-uppercase display-6 fw-bold">Order Management</h2>
+	<!-- Order Table -->
+	<div class="card shadow-sm">
+		<div class="card-header text-secondary">
+			<h5 class="mb-0">Order List</h5>
+		</div>
+		<div class="card-body">
+			<table id="ordersTable" class="table table-striped table-bordered table-hover">
+				<thead class="table-dark">
+					<tr>
+						<th>Order ID</th>
+						<th>Customer</th>
+						<th>Order Date</th>
+						<th>Status</th>
+						<th>Total Amount</th>
+						<th>Action</th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var order in Model)
+					{
+						<tr>
+							<td>@order.OrderID</td>
+							<td>@order.User.FirstName @order.User.LastName</td>
+							<td>@order.OrderDate.ToShortDateString()</td>
+							<td>
+								<span class="badge @(
+                                    order.OrderStatus == "Pending" ? "bg-warning" :
+                                    order.OrderStatus == "Shipped" ? "bg-primary" :
+                                    order.OrderStatus == "Delivered" ? "bg-success" :
+                                    order.OrderStatus == "Canceled" ? "bg-danger" : "bg-secondary"
+)">
+									@order.OrderStatus
+								</span>
+							</td>
+							<td>@order.TotalAmount.ToString("C", new System.Globalization.CultureInfo("en-LK"))</td>
+							<td>
+								<button class="btn btn-outline-secondary btn-sm" onclick="ViewOrderDetails(@order.OrderID)"><i class="bi-eye"></i></button>
+								@if (order.OrderStatus == "Pending")
+								{
+									<button class="btn btn-outline-primary btn-sm" onclick="ChangeOrderStatus(@order.OrderID, 'Shipped')"><i class="bi-truck"></i></button>
+								}
+								else if (order.OrderStatus == "Shipped")
+								{
+									<button class="btn btn-outline-success btn-sm" onclick="ChangeOrderStatus(@order.OrderID, 'Delivered')">
+										<i class="bi-check-all"></i>
+									</button>
+								}
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
 </div>
 
 <!-- Modal for Viewing Order Details -->
 <div class="modal fade" id="orderDetailsModal" tabindex="-1" role="dialog" aria-labelledby="orderDetailsModalLabel" aria-hidden="true">
-	<div class="modal-dialog" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title" id="orderDetailsModalLabel">Order Details</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="$('#orderDetailsModal').modal('hide')">
-					<span aria-hidden="true">&times;</span>
-				</button>
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content border-0 shadow-lg rounded-4">
+			<div class="modal-header bg-secondary text-white">
+				<h5 class="modal-title" id="orderDetailsModalLabel"><i class="bi bi-receipt me-2"></i>Order Details</h5>
+				<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
-			<div class="modal-body">
-				<p><strong>Customer Name:</strong> <span id="customerName"></span></p>
-				<p><strong>Customer Address:</strong> <span id="customerAddress"></span></p>
-				<p><strong>Order Date:</strong> <span id="orderDate"></span></p>
-				<p><strong>Order Status:</strong> <span id="orderStatus"></span></p>
-				<h5>Order Items</h5>
-				<ul id="orderItems"></ul>
-				<p><strong>Total Amount:</strong> <span id="totalAmount"></span></p>
+			<div class="modal-body p-4">
+				<!-- Customer and Order Info Section -->
+				<div class="row mb-4">
+					<div class="col-md-6 mb-3">
+						<p><strong><i class="bi bi-person-circle text-secondary me-2"></i>Customer Name:</strong> <span id="customerName"></span></p>
+						<p><strong><i class="bi bi-geo-alt text-secondary me-2"></i>Customer Address:</strong> <span id="customerAddress"></span></p>
+					</div>
+					<div class="col-md-6 mb-3">
+						<p><strong><i class="bi bi-calendar-event text-secondary me-2"></i>Order Date:</strong> <span id="orderDate"></span></p>
+						<p><strong><i class="bi bi-check-circle text-secondary me-2"></i>Order Status:</strong> <span id="orderStatus"></span></p>
+					</div>
+				</div>
+
+				<!-- Order Items Section -->
+				<h5 class="mb-3"><i class="bi bi-cart me-2 text-secondary"></i>Order Items</h5>
+				<div class="table-responsive">
+					<table class="table table-bordered align-middle">
+						<thead class="table-light">
+							<tr>
+								<th>Image</th>
+								<th>Item Name</th>
+								<th>Quantity</th>
+								<th>Price</th>
+								<th>Total</th>
+							</tr>
+						</thead>
+						<tbody id="orderItems">
+						</tbody>
+					</table>
+				</div>
+
+				<!-- Total Amount -->
+				<p class="mt-4 text-end fw-bold fs-5">Total Amount: <span id="totalAmount"></span></p>
+			</div>
+			<div class="modal-footer border-0 d-flex justify-content-center">
+				<button type="button" class="btn btn-outline-danger w-100" data-bs-dismiss="modal">Close</button>
 			</div>
 		</div>
 	</div>
 </div>
+
+<style>
+	#ordersTable_filter input {
+		padding: 5px 15px;
+		font-size: 16px;
+		width: 300px;
+		margin-bottom: 10px
+	}
+</style>
+
 @section Scripts {
 	<script>
+		// Initialize DataTable
+		$(document).ready(function () {
+			$('#ordersTable').DataTable({
+				"paging": true,
+				"searching": true,
+				"ordering": true
+			});
+		});
+
 		function ChangeOrderStatus(orderId, newStatus) {
 			$.ajax({
 				url: '/Order/ChangeOrderStatus',
@@ -73,51 +137,47 @@
 				},
 				success: function (response) {
 					alert("Order status updated successfully.");
-					location.reload(); // Reload the page to see the updated status
+					location.reload();
 				},
 				error: function (error) {
-					alert("An error occurred while updating the order status."+ error);
+					alert("An error occurred while updating the order status." + error);
 				}
 			});
 		}
 
 		// Function to view order details in a modal
 		function ViewOrderDetails(orderId) {
-			$.ajax({
-				url: '/Order/GetOrderDetails',
-				type: 'GET',
-				data: {
-					orderId: orderId
-				},
-				success: function (response) {
-					// Populate modal with order details
-					$('#customerName').text(response.customerName);
-					$('#customerAddress').text(response.customerAddress);
-					$('#orderDate').text(response.orderDate.split('T')[0]);
-					$('#orderStatus').text(response.orderStatus);
+			$.get('@Url.Action("GetOrderDetails")', { orderId: orderId }, function (response) {
+				$('#customerName').text(response.customerName);
+				$('#customerAddress').text(response.customerAddress);
+				$('#orderDate').text(response.orderDate.split('T')[0]);
+				$('#orderStatus').text(response.orderStatus);
 
-					const formattedAmount = new Intl.NumberFormat('en-LK', {
-						style: 'currency',
-						currency: 'LKR',
-					}).format(response.totalAmount);
+				const formattedAmount = new Intl.NumberFormat('en-LK', {
+					style: 'currency',
+					currency: 'LKR',
+				}).format(response.totalAmount);
 
-					$('#totalAmount').text(formattedAmount);
+				$('#totalAmount').text(formattedAmount);
 
-					$('#orderItems').empty();
+				$('#orderItems').empty();
 
-					// Populate order items
-					console.log(response);
-					console.log(response.orderItems);
-					response.orderItems?.forEach(item => {
-					 	$('#orderItems').append('<li>' + item.bookTitle + ' x ' + item.quantity + ' - ' + item.price.toFixed(2) + '</li>');
-					 });
+				// Populate order items
+				response.orderItems?.forEach(item => {
+					console.log(item);
+					$('#orderItems').append(`
+									<tr>
+										<td><img src="${item.imageData}" alt="Item Image" style="width: 50px; height: auto; border - radius: 5px; "></td>
+										<td>${item.bookTitle}</td>
+										<td>${item.quantity}</td>
+										<td>LKR ${item.price}</td>
+										<td>LKR ${item.quantity * item.price}</td>
+									</tr>
+								`);
+				});
 
-					// Show the modal
-					$('#orderDetailsModal').modal('show');
-				},
-				error: function (xhr, status, error) {
-					alert("An error occurred while fetching the order details."+ error);
-				}
+				// Show the modal
+				$('#orderDetailsModal').modal('show');
 			});
 		}
 	</script>

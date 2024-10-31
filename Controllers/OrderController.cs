@@ -5,6 +5,7 @@ using EBookStore.Util;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using static iTextSharp.text.pdf.AcroFields;
 
 namespace EBookStore.Controllers
 {
@@ -349,10 +350,10 @@ namespace EBookStore.Controllers
                 {
                     BookTitle = od.Book.Title,
                     Quantity = od.Quantity,
-                    Price = od.Price
+                    Price = od.Price,
+                    ImageData = $"data:{od.Book.ImageMimeType};base64,{Convert.ToBase64String(od.Book.ImageData)}",
                 }).ToList() ?? new List<OrderItemViewModel>()
             };
-
             return Json(orderViewModel);
         }
     }
