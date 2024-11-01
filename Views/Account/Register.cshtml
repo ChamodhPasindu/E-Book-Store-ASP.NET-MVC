@@ -1,43 +1,76 @@
 ﻿@model User
 
-@{
-    ViewData["Title"] = "Register";
-}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <!-- Register Header -->
+            <h2 class="text-center fw-bold mb-4">Create an Account</h2>
 
-<h2>Register</h2>
 
-<form asp-action="Register" method="post">
-   
-    <div class="form-group">
-        <label for="FirstName">First Name</label>
-        <input type="text" class="form-control" id="FirstName" name="FirstName" required />
+            <!-- Register Form -->
+            <form asp-action="Register" method="post" class="p-4 shadow rounded border">
+
+                <!-- First Name -->
+                <div class="mb-3">
+                    <label for="FirstName" class="form-label">First Name</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi-person"></i></span>
+                        <input type="text" class="form-control" id="FirstName" name="FirstName" placeholder="Enter your first name" required />
+                    </div>
+                </div>
+
+                <!-- Last Name -->
+                <div class="mb-3">
+                    <label for="LastName" class="form-label">Last Name</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi-person"></i></span>
+                        <input type="text" class="form-control" id="LastName" name="LastName" placeholder="Enter your last name" required />
+                    </div>
+                </div>
+
+                <!-- Phone Number -->
+                <div class="mb-3">
+                    <label for="PhoneNumber" class="form-label">Phone Number</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi-telephone"></i></i></span>
+                        <input type="text" class="form-control" id="PhoneNumber" name="PhoneNumber" placeholder="Enter your phone number" required />
+                    </div>
+                </div>
+
+                <!-- Address -->
+                <div class="mb-3">
+                    <label for="Address" class="form-label">Address</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi-geo-alt"></i></span>
+                        <textarea class="form-control" id="Address" name="Address" rows="3" placeholder="Enter your address" required></textarea>
+                    </div>
+                </div>
+
+                <!-- Email -->
+                <div class="mb-3">
+                    <label for="Email" class="form-label">Email</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi-envelope"></i></span>
+                        <input type="email" class="form-control" id="Email" name="Email" placeholder="Enter your email" required />
+                    </div>
+                </div>
+
+                <!-- Password -->
+                <div class="mb-3">
+                    <label for="Password" class="form-label">Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi-lock"></i></span>
+                        <input type="password" class="form-control" id="Password" name="Password" placeholder="Enter your password" required />
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-outline-success btn-lg">
+                        <i class="fas fa-user-plus"></i> Register
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-
-    <div class="form-group">
-        <label for="LastName">Last Name</label>
-        <input type="text" class="form-control" id="LastName" name="LastName" required />
-    </div>
-
-    <div class="form-group">
-        <label for="PhoneNumber">Phone Number</label>
-        <input type="text" class="form-control" id="PhoneNumber" name="PhoneNumber" required />
-    </div>
-
-    <div class="form-group">
-        <label for="Address">Address</label>
-        <textarea class="form-control" id="Address" name="Address" rows="3" required></textarea>
-    </div>
-
-    <div class="form-group">
-        <label for="Email">Email</label>
-        <input type="text" class="form-control" id="Email" name="Email" required />
-    </div>
-
-    <div class="form-group">
-        <label for="Password">Password</label>
-        <input type="password" class="form-control" id="Password" name="Password" required />
-    </div>
-
-
-    <button type="submit" class="btn btn-success">Register</button>
-</form>
+</div>

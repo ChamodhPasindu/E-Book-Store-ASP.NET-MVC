@@ -1,26 +1,51 @@
-﻿@{
-    ViewData["Title"] = "Login";
-}
+﻿
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <!-- Login Header -->
+            <h2 class="text-center fw-bold mb-4">Login</h2>
 
-<h2>Login</h2>
+            <!-- Error Message -->
+            @if (!string.IsNullOrEmpty(ViewBag.Error))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    @ViewBag.Error
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
 
-@if (!string.IsNullOrEmpty(ViewBag.Error))
-{
-    <div class="alert alert-danger">
-        @ViewBag.Error
+            <!-- Login Form -->
+            <form asp-action="Login" method="post" class="p-4 shadow rounded border">
+                <!-- Email Field -->
+                <div class="mb-3">
+                    <label for="Email" class="form-label">Email</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi-envelope"></i></span>
+                        <input type="email" class="form-control" id="Email" name="Email" placeholder="Enter your email" required />
+                    </div>
+                </div>
+
+                <!-- Password Field -->
+                <div class="mb-3">
+                    <label for="Password" class="form-label">Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi-lock"></i></span>
+                        <input type="password" class="form-control" id="Password" name="password" placeholder="Enter your password" required />
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-outline-primary btn-lg">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </button>
+                </div>
+
+                <!-- Forgot Password Link -->
+                <div class="text-center mt-3">
+                    @* <a href="/Account/ForgotPassword" class="text-decoration-none">Forgot your password?</a> *@
+                </div>
+            </form>
+        </div>
     </div>
-}
-
-<form asp-action="Login" method="post">
-    <div class="form-group">
-        <label for="Email">Email</label>
-        <input type="text" class="form-control" id="Email" name="Email" required />
-    </div>
-
-    <div class="form-group">
-        <label for="Password">Password</label>
-        <input type="password" class="form-control" id="Password" name="password" required />
-    </div>
-
-    <button type="submit" class="btn btn-primary">Login</button>
-</form>
+</div>
