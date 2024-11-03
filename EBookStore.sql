@@ -64,13 +64,3 @@ CREATE TABLE Feedback (
     FOREIGN KEY (BookID) REFERENCES Books(BookID) 
 );
 
-INSERT INTO Users (FirstName, LastName, Email, PasswordHash, PhoneNumber, Address, Role)
-VALUES 
-('John', 'Doe', 'johndoe@example.com', HASHBYTES('SHA2_256', 'Password123'), '1234567890', '123 Main St', 'Customer'),
-('Admin', 'Smith', 'admin@example.com', HASHBYTES('SHA2_256', 'AdminPassword456'), NULL, NULL, 'Admin');
-
--- Insert sample books
-INSERT INTO Books (Title, Author, Category, Price, QuantityInStock, Description, ISBN)
-VALUES 
-('The Great Gatsby', 'F. Scott Fitzgerald', 'Fiction', 12.99, 10, 'A classic novel', '978-0743273565'),
-('1984', 'George Orwell', 'Dystopian', 15.50, 5, 'Dystopian novel', '978-0451524935');

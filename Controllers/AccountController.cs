@@ -53,15 +53,24 @@ namespace EBookStore.Controllers
 		[HttpGet]
 		public IActionResult CustomerManagement()
 		{
-			var users = _context.Users
+			try
+			{
+				var users = _context.Users
 							  .Where(b => b.IsActive && b.Role == "Customer") // Only select active books
 							  .ToList();
-			if (users == null)
-			{
-				// Handle case where no users are found
-				return View(new List<User>());
+				if (users == null)
+				{
+					// Handle case where no users are found
+					return View(new List<User>());
+				}
+				return View(users);
 			}
-			return View(users);
+			//handle exceptions
+			catch (Exception ex)
+			{
+				TempData["ErrorMessage"] = $"An error occurred while retrieving the customer list: {ex.Message}";
+				return View("Error");
+			}
 		}
 
 		// GET: Settings View
@@ -75,58 +84,111 @@ namespace EBookStore.Controllers
 		[HttpGet]
 		public async Task<IActionResult> Report(DateTime? fromDate, DateTime? toDate)
 		{
-			var query = _context.Orders
+			try
+			{
+				var query = _context.Orders
 				.Include(o => o.User)
 				.Where(o => o.OrderStatus == "Delivered");
 
-			// Apply date filtering
-			if (fromDate.HasValue)
-				query = query.Where(o => o.OrderDate >= fromDate.Value);
-			if (toDate.HasValue)
-				query = query.Where(o => o.OrderDate <= toDate.Value);
+				// Apply date filtering
+				if (fromDate.HasValue)
+					query = query.Where(o => o.OrderDate >= fromDate.Value);
+				if (toDate.HasValue)
+					query = query.Where(o => o.OrderDate <= toDate.Value);
 
-			var deliveredOrders = await query.ToListAsync();
+				var deliveredOrders = await query.ToListAsync();
 
-			// Map to OrderViewModel
-			var deliveredOrderViewModels = deliveredOrders.Select(o => new OrderViewModel
-			{
-				OrderID = o.OrderID,
-				OrderStatus = o.OrderStatus,
-				OrderDate = o.OrderDate,
-				TotalAmount = o.TotalAmount,
-				CustomerName = $"{o.User.FirstName} {o.User.LastName}",
-				CustomerEmail = o.User.Email,
-				CustomerAddress = o.User.Address,
-				OrderItems = o.OrderDetails.Select(od => new OrderItemViewModel
+				// Map to OrderViewModel
+				var deliveredOrderViewModels = deliveredOrders.Select(o => new OrderViewModel
 				{
-					BookTitle = od.Book.Title,
-					Quantity = od.Quantity,
-					Price = od.Price,
-					ImageData = $"data:{od.Book.ImageMimeType};base64,{Convert.ToBase64String(od.Book.ImageData)}",
-				}).ToList()
-			}).ToList();
+					OrderID = o.OrderID,
+					OrderStatus = o.OrderStatus,
+					OrderDate = o.OrderDate,
+					TotalAmount = o.TotalAmount,
+					CustomerName = $"{o.User.FirstName} {o.User.LastName}",
+					CustomerEmail = o.User.Email,
+					CustomerAddress = o.User.Address,
+					OrderItems = o.OrderDetails.Select(od => new OrderItemViewModel
+					{
+						BookTitle = od.Book.Title,
+						Quantity = od.Quantity,
+						Price = od.Price,
+						ImageData = $"data:{od.Book.ImageMimeType};base64,{Convert.ToBase64String(od.Book.ImageData)}",
+					}).ToList()
+				}).ToList();
 
-			// Pass the list to the view as the model
-			return View(deliveredOrderViewModels);
+				// Pass the list to the view as the model
+				return View(deliveredOrderViewModels);
+			}
+			//handle exceptions
+			catch (Exception ex)
+			{
+
+				TempData["ErrorMessage"] = $"An error occurred while generating the report. Please try again later: {ex.Message}";
+				return View("Error");
+			}
 		}
 
 		// POST: Register Method
 		[HttpPost]
-		[Route("account/register")]
 		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> Register(User newUser)
+		public async Task<IActionResult> RegisterCustomer(User newUser)
 		{
-			if (ModelState.IsValid)
+			try
 			{
-				// Hash the password
-				newUser.Password = _passwordHasher.HashPassword(newUser, newUser.Password);
+				if (ModelState.IsValid)
+				{
+					// Hash the password
+					newUser.Password = _passwordHasher.HashPassword(newUser, newUser.Password);
 
-				// Save the new user with hashed password to the database
-				_context.Users.Add(newUser);
-				await _context.SaveChangesAsync();
-				return RedirectToAction("Login");
+					// Save the new user with hashed password to the database
+					_context.Users.Add(newUser);
+					await _context.SaveChangesAsync();
+					TempData["SuccessMessage"] = "Account Created Successfully!";
+					return RedirectToAction("Login");
+				}
+				return View(newUser);
 			}
-			return View(newUser);
+			//handle exceptions
+			catch (Exception ex)
+			{
+
+				TempData["ErrorMessage"] = $"An error occurred while registering customer request. Please try again later: {ex.Message}";
+				return View("Error");
+			}
+		}
+
+		// POST: Register Method
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> RegisterAdmin(User newUser)
+		{
+			try
+			{
+				if (ModelState.IsValid)
+				{
+					// Hash the password
+					newUser.Password = _passwordHasher.HashPassword(newUser, newUser.Password);
+
+					newUser.Role = "Admin";
+					_context.Users.Add(newUser);
+					await _context.SaveChangesAsync();
+					TempData["SuccessMessage"] = "Admin Account Created Successfully!";
+					return View("Setting");
+				}
+				else
+				{
+					TempData["ErrorMessage"] = "Admin Account Created Failed!";
+					return View("Setting");
+				}
+			}
+			//handle exceptions
+			catch (Exception ex)
+			{
+
+				TempData["ErrorMessage"] = $"An error occurred while creating admin account. Please try again later: {ex.Message}";
+				return View("Error");
+			}
 		}
 
 		// POST: Login Method
@@ -134,40 +196,50 @@ namespace EBookStore.Controllers
 		[ValidateAntiForgeryToken]
 		public IActionResult Login(string email, string password)
 		{
-			var user = _context.Users.FirstOrDefault(u => u.Email == email);
-			if (user != null)
+			try
 			{
-				var result = _passwordHasher.VerifyHashedPassword(user, user.Password, password);
-
-				if (result == PasswordVerificationResult.Success)
+				var user = _context.Users.FirstOrDefault(u => u.Email == email);
+				if (user != null)
 				{
-					// Store user in session (for simplicity)
-					HttpContext.Session.SetString("Email", user.Email);
-					HttpContext.Session.SetString("UserID", user.UserID.ToString());
-					HttpContext.Session.SetString("FirstName", user.FirstName);
-					HttpContext.Session.SetString("LastName", user.LastName);
-					HttpContext.Session.SetString("Address", user.Address);
-					HttpContext.Session.SetString("Role", user.Role);
+					var result = _passwordHasher.VerifyHashedPassword(user, user.Password, password);
 
-					// Redirect based on role
-					if (user.Role == "Admin")
+					if (result == PasswordVerificationResult.Success)
 					{
-						return RedirectToAction("AdminDashboard", "Home");
+						// Store user in session (for simplicity)
+						HttpContext.Session.SetString("Email", user.Email);
+						HttpContext.Session.SetString("UserID", user.UserID.ToString());
+						HttpContext.Session.SetString("FirstName", user.FirstName);
+						HttpContext.Session.SetString("LastName", user.LastName);
+						HttpContext.Session.SetString("Address", user.Address);
+						HttpContext.Session.SetString("Role", user.Role);
+
+						// Redirect based on role
+						if (user.Role == "Admin")
+						{
+							return RedirectToAction("AdminDashboard", "Home");
+						}
+						else
+						{
+							return RedirectToAction("Index", "Home");
+						}
 					}
 					else
 					{
-						return RedirectToAction("Index", "Home");
+						ViewBag.Error = "Incorrect Password!";
+						return View();
 					}
 				}
-				else
-				{
-					ViewBag.Error = "Incorrect Password!";
-					return View();
-				}
-			}
 
-			ViewBag.Error = "Invalid login attempt!";
-			return View();
+				ViewBag.Error = "Invalid login attempt!";
+				return View();
+			}
+			//handle exceptions
+			catch (Exception ex)
+			{
+
+				TempData["ErrorMessage"] = $"An error occurred while login. Please try again later: {ex.Message}";
+				return View("Error");
+			}
 		}
 
 		// GET: Customer By ID
@@ -179,7 +251,9 @@ namespace EBookStore.Controllers
 				return NotFound();
 			}
 
-			var user = await _context.Users
+			try
+			{
+				var user = await _context.Users
 				.Where(b => b.UserID == id)
 				.Include(b => b.FeedBacks).
 				Select(b => new
@@ -193,27 +267,45 @@ namespace EBookStore.Controllers
 					b.Address,
 					b.FeedBacks,
 				}).FirstOrDefaultAsync(m => m.UserID == id);
-			if (user == null)
-			{
-				return NotFound();
-			}
+				if (user == null)
+				{
+					return NotFound();
+				}
 
-			return Json(user);// Return the user details as JSON for use in the modal or edit form
+				return Json(user);// Return the user details as JSON for use in the modal or edit form
+			}
+			//handle exceptions
+			catch (Exception ex)
+			{
+
+				TempData["ErrorMessage"] = $"An error occurred while retrieving the customer. Please try again later: {ex.Message}";
+				return View("Error");
+			}
 		}
 
 		// POST: Customer Delete By ID
 		[HttpPost]
 		public async Task<IActionResult> Delete(int id)
 		{
-			var user = await _context.Users.FindAsync(id);
-			if (user != null)
+			try
 			{
-				user.IsActive = false;
-				_context.Users.Update(user);
-				await _context.SaveChangesAsync();
-				return Json(new { success = true });
+				var user = await _context.Users.FindAsync(id);
+				if (user != null)
+				{
+					user.IsActive = false;
+					_context.Users.Update(user);
+					await _context.SaveChangesAsync();
+					return Json(new { success = true });
+				}
+				return Json(new { success = false });
 			}
-			return Json(new { success = false });
+			//handle exceptions
+			catch (Exception ex)
+			{
+
+				TempData["ErrorMessage"] = $"An error occurred while deleting the customer. Please try again later: {ex.Message}";
+				return View("Error");
+			}
 		}
 
 		// POST : Update User Details Method
@@ -221,29 +313,39 @@ namespace EBookStore.Controllers
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> UpdateDetails(UserSettingsViewModel model)
 		{
-			if (ModelState.IsValid)
+			try
 			{
-				var user = await _context.Users.FindAsync(model.UserID);
-				if (user == null)
+				if (ModelState.IsValid)
 				{
-					return NotFound();
+					var user = await _context.Users.FindAsync(model.UserID);
+					if (user == null)
+					{
+						return NotFound();
+					}
+
+					// Update user details
+					user.FirstName = model.FirstName;
+					user.LastName = model.LastName;
+					user.Email = model.Email;
+					user.Address = model.Address;
+
+					await _context.SaveChangesAsync();
+
+					TempData["SuccessMessage"] = "Details updated successfully!";
+					return View("Setting");
 				}
-
-				// Update user details
-				user.FirstName = model.FirstName;
-				user.LastName = model.LastName;
-				user.Email = model.Email;
-				user.Address = model.Address;
-
-				await _context.SaveChangesAsync();
-
-				TempData["SuccessMessage"] = "Details updated successfully!";
-				return View("Setting");
+				else
+				{
+					TempData["ErrorMessage"] = "Details updated Failed!";
+					return View("Setting");
+				}
 			}
-			else
+			//handle exceptions
+			catch (Exception ex)
 			{
-				TempData["ErrorMessage"] = "Details updated Failed!";
-				return View("Setting");
+
+				TempData["ErrorMessage"] = $"An error occurred while updating user requeste. Please try again later: {ex.Message}";
+				return View("Error");
 			}
 		}
 
@@ -252,84 +354,104 @@ namespace EBookStore.Controllers
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> ChangePassword(string currentPassword, string newPassword)
 		{
-			var userId = HttpContext.Session.GetString("UserID");
-			if (userId == null)
+			try
 			{
-				return RedirectToAction("Login", "Account");
-			}
+				var userId = HttpContext.Session.GetString("UserID");
+				if (userId == null)
+				{
+					return RedirectToAction("Login", "Account");
+				}
 
-			var user = await _context.Users.FindAsync(int.Parse(userId));
-			if (user == null)
-			{
-				return NotFound();
-			}
+				var user = await _context.Users.FindAsync(int.Parse(userId));
+				if (user == null)
+				{
+					return NotFound();
+				}
 
-			// Verify current password
-			var result = _passwordHasher.VerifyHashedPassword(user, user.Password, currentPassword);
+				// Verify current password
+				var result = _passwordHasher.VerifyHashedPassword(user, user.Password, currentPassword);
 
-			if (result != PasswordVerificationResult.Success)
-			{
-				TempData["ErrorMessage"] = "Current password is incorrect.";
+				if (result != PasswordVerificationResult.Success)
+				{
+					TempData["ErrorMessage"] = "Current password is incorrect.";
+					return RedirectToAction("Setting");
+				}
+
+
+				// Update password
+				user.Password = _passwordHasher.HashPassword(user, newPassword);
+				await _context.SaveChangesAsync();
+
+				TempData["SuccessMessage"] = "Password updated successfully!";
 				return RedirectToAction("Setting");
 			}
+			//handle exceptions
+			catch (Exception ex)
+			{
 
-
-			// Update password
-			user.Password = _passwordHasher.HashPassword(user, newPassword);
-			await _context.SaveChangesAsync();
-
-			TempData["SuccessMessage"] = "Password updated successfully!";
-			return RedirectToAction("Setting");
+				TempData["ErrorMessage"] = $"An error occurred while changing the user password. Please try again later: {ex.Message}";
+				return View("Error");
+			}
 		}
 
 		// GET : Download Order Details By ID
 		[HttpGet]
 		public async Task<IActionResult> DownloadOrder(int orderId)
 		{
-			var order = await _context.Orders
+			try
+			{
+				var order = await _context.Orders
 				.Include(o => o.OrderDetails)
 				.ThenInclude(od => od.Book)
 				.Include(o => o.User)
 				.FirstOrDefaultAsync(o => o.OrderID == orderId);
 
-			if (order == null) return NotFound();
+				if (order == null) return NotFound();
 
-			using (var stream = new MemoryStream())
-			{
-				// Initialize the PDF writer
-				var writer = new PdfWriter(stream);
-				var pdf = new iText.Kernel.Pdf.PdfDocument(writer);
-				var document = new iText.Layout.Document(pdf);
-
-				// Add title
-				document.Add(new iText.Layout.Element.Paragraph($"Order Report - Order ID: {orderId}").SetFontSize(18).SetBold());
-
-				// Add customer details
-				document.Add(new iText.Layout.Element.Paragraph($"Customer: {order.User.FirstName} {order.User.LastName}"));
-				document.Add(new iText.Layout.Element.Paragraph($"Email: {order.User.Email}"));
-				document.Add(new iText.Layout.Element.Paragraph($"Address: {order.User.Address}"));
-				document.Add(new iText.Layout.Element.Paragraph($"Order Date: {order.OrderDate.ToString("yyyy-MM-dd")}"));
-				document.Add(new iText.Layout.Element.Paragraph($"Total Amount: {order.TotalAmount.ToString("C", new System.Globalization.CultureInfo("en-LK"))}"));
-
-				// Add order item details
-				document.Add(new iText.Layout.Element.Paragraph("Order Items:"));
-				var table = new iText.Layout.Element.Table(3); // 3 columns for Book Title, Quantity, and Price
-				table.AddHeaderCell("Book Title");
-				table.AddHeaderCell("Quantity");
-				table.AddHeaderCell("Price");
-
-				foreach (var item in order.OrderDetails)
+				using (var stream = new MemoryStream())
 				{
-					table.AddCell(item.Book.Title);
-					table.AddCell(item.Quantity.ToString());
-					table.AddCell(item.Price.ToString("C", new System.Globalization.CultureInfo("en-LK")));
+					// Initialize the PDF writer
+					var writer = new PdfWriter(stream);
+					var pdf = new iText.Kernel.Pdf.PdfDocument(writer);
+					var document = new iText.Layout.Document(pdf);
+
+					// Add title
+					document.Add(new iText.Layout.Element.Paragraph($"Order Report - Order ID: {orderId}").SetFontSize(18).SetBold());
+
+					// Add customer details
+					document.Add(new iText.Layout.Element.Paragraph($"Customer: {order.User.FirstName} {order.User.LastName}"));
+					document.Add(new iText.Layout.Element.Paragraph($"Email: {order.User.Email}"));
+					document.Add(new iText.Layout.Element.Paragraph($"Address: {order.User.Address}"));
+					document.Add(new iText.Layout.Element.Paragraph($"Order Date: {order.OrderDate.ToString("yyyy-MM-dd")}"));
+					document.Add(new iText.Layout.Element.Paragraph($"Total Amount: {order.TotalAmount.ToString("C", new System.Globalization.CultureInfo("en-LK"))}"));
+
+					// Add order item details
+					document.Add(new iText.Layout.Element.Paragraph("Order Items:"));
+					var table = new iText.Layout.Element.Table(3); // 3 columns for Book Title, Quantity, and Price
+					table.AddHeaderCell("Book Title");
+					table.AddHeaderCell("Quantity");
+					table.AddHeaderCell("Price");
+
+					foreach (var item in order.OrderDetails)
+					{
+						table.AddCell(item.Book.Title);
+						table.AddCell(item.Quantity.ToString());
+						table.AddCell(item.Price.ToString("C", new System.Globalization.CultureInfo("en-LK")));
+					}
+					document.Add(table);
+
+					// Close the document
+					document.Close();
+
+					return File(stream.ToArray(), "application/pdf", $"Order_{orderId}.pdf");
 				}
-				document.Add(table);
+			}
+			//handle exceptions
+			catch (Exception ex)
+			{
 
-				// Close the document
-				document.Close();
-
-				return File(stream.ToArray(), "application/pdf", $"Order_{orderId}.pdf");
+				TempData["ErrorMessage"] = $"An error occurred while changing the user password. Please try again later: {ex.Message}";
+				return View("Error");
 			}
 		}
 
@@ -337,36 +459,46 @@ namespace EBookStore.Controllers
 		[HttpGet]
 		public async Task<IActionResult> DownloadBooks()
 		{
-			var books = await _context.Books.Where(b => b.IsActive).ToListAsync();
-
-			using (var stream = new MemoryStream())
+			try
 			{
-				var writer = new PdfWriter(stream);
-				var pdf = new iText.Kernel.Pdf.PdfDocument(writer);
-				var document = new iText.Layout.Document(pdf);
+				var books = await _context.Books.Where(b => b.IsActive).ToListAsync();
 
-				document.Add(new iText.Layout.Element.Paragraph("Books Report").SetFontSize(18).SetBold());
-
-				var table = new iText.Layout.Element.Table(5);
-				table.AddHeaderCell("Title");
-				table.AddHeaderCell("Author");
-				table.AddHeaderCell("Category");
-				table.AddHeaderCell("Publication Date");
-				table.AddHeaderCell("Price");
-
-				foreach (var book in books)
+				using (var stream = new MemoryStream())
 				{
-					table.AddCell(book.Title);
-					table.AddCell(book.Author);
-					table.AddCell(book.Category);
-					table.AddCell(book.PublicationDate.ToString().Split('T')[0]);
-					table.AddCell(book.Price.ToString("C", new System.Globalization.CultureInfo("en-LK")));
+					var writer = new PdfWriter(stream);
+					var pdf = new iText.Kernel.Pdf.PdfDocument(writer);
+					var document = new iText.Layout.Document(pdf);
+
+					document.Add(new iText.Layout.Element.Paragraph("Books Report").SetFontSize(18).SetBold());
+
+					var table = new iText.Layout.Element.Table(5);
+					table.AddHeaderCell("Title");
+					table.AddHeaderCell("Author");
+					table.AddHeaderCell("Category");
+					table.AddHeaderCell("Publication Date");
+					table.AddHeaderCell("Price");
+
+					foreach (var book in books)
+					{
+						table.AddCell(book.Title);
+						table.AddCell(book.Author);
+						table.AddCell(book.Category);
+						table.AddCell(book.PublicationDate.ToString().Split('T')[0]);
+						table.AddCell(book.Price.ToString("C", new System.Globalization.CultureInfo("en-LK")));
+					}
+					document.Add(table);
+
+					document.Close();
+
+					return File(stream.ToArray(), "application/pdf", "AllBooks.pdf");
 				}
-				document.Add(table);
+			}
+			//handle exceptions
+			catch (Exception ex)
+			{
 
-				document.Close();
-
-				return File(stream.ToArray(), "application/pdf", "AllBooks.pdf");
+				TempData["ErrorMessage"] = $"An error occurred while downloading books. Please try again later: {ex.Message}";
+				return View("Error");
 			}
 		}
 
@@ -374,36 +506,46 @@ namespace EBookStore.Controllers
 		[HttpGet]
 		public async Task<IActionResult> DownloadCustomers()
 		{
-			var customers = await _context.Users.Where(b => b.IsActive).ToListAsync();
-
-			using (var stream = new MemoryStream())
+			try
 			{
-				var writer = new PdfWriter(stream);
-				var pdf = new iText.Kernel.Pdf.PdfDocument(writer);
-				var document = new iText.Layout.Document(pdf);
+				var customers = await _context.Users.Where(b => b.IsActive).ToListAsync();
 
-				document.Add(new iText.Layout.Element.Paragraph("Customers Report").SetFontSize(18).SetBold());
-
-				var table = new iText.Layout.Element.Table(5);
-				table.AddHeaderCell("Name");
-				table.AddHeaderCell("Email");
-				table.AddHeaderCell("Phone Number");
-				table.AddHeaderCell("Address");
-				table.AddHeaderCell("Registration Date");
-
-				foreach (var customer in customers)
+				using (var stream = new MemoryStream())
 				{
-					table.AddCell($"{customer.FirstName} {customer.LastName}");
-					table.AddCell(customer.Email);
-					table.AddCell(customer.PhoneNumber);
-					table.AddCell(customer.Address);
-					table.AddCell(customer.RegistrationDate.ToString().Split('T')[0]);
+					var writer = new PdfWriter(stream);
+					var pdf = new iText.Kernel.Pdf.PdfDocument(writer);
+					var document = new iText.Layout.Document(pdf);
+
+					document.Add(new iText.Layout.Element.Paragraph("Customers Report").SetFontSize(18).SetBold());
+
+					var table = new iText.Layout.Element.Table(5);
+					table.AddHeaderCell("Name");
+					table.AddHeaderCell("Email");
+					table.AddHeaderCell("Phone Number");
+					table.AddHeaderCell("Address");
+					table.AddHeaderCell("Registration Date");
+
+					foreach (var customer in customers)
+					{
+						table.AddCell($"{customer.FirstName} {customer.LastName}");
+						table.AddCell(customer.Email);
+						table.AddCell(customer.PhoneNumber);
+						table.AddCell(customer.Address);
+						table.AddCell(customer.RegistrationDate.ToString().Split('T')[0]);
+					}
+					document.Add(table);
+
+					document.Close();
+
+					return File(stream.ToArray(), "application/pdf", "AllCustomers.pdf");
 				}
-				document.Add(table);
+			}
+			//handle exceptions
+			catch (Exception ex)
+			{
 
-				document.Close();
-
-				return File(stream.ToArray(), "application/pdf", "AllCustomers.pdf");
+				TempData["ErrorMessage"] = $"An error occurred while downloading customers. Please try again later: {ex.Message}";
+				return View("Error");
 			}
 		}
 	}
