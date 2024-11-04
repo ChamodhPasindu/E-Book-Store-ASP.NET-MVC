@@ -1,4 +1,4 @@
-﻿@model IEnumerable<EBookStore.Models.Book>
+﻿@model IEnumerable<Book>
 
 <div class="container mt-4">
 	<!-- Title Section -->
@@ -72,6 +72,20 @@
 								<span class="text-muted">(@book.FeedBacks.Count())</span>
 							</div>
 
+							@if (book.QuantityInStock < 1)
+							{
+								<p class="card-text text-muted">
+									<span class="badge bg-danger">Out Of Stock</span>
+								</p>
+							}
+							else
+							{
+								<p class="card-text text-muted">
+									<span class="badge bg-success">In Stock</span>
+								</p>
+							}
+
+
 							<!-- Quantity Control -->
 							<div class="input-group mb-3 justify-content-center">
 								<button class="btn btn-outline-secondary" type="button" onclick="decreaseQuantity(@book.BookID)">-</button>
@@ -83,7 +97,7 @@
 						<!-- Buttons -->
 						<div class="card-footer bg-transparent border-0 mb-2">
 							<div class="d-grid gap-2 d-md-flex justify-content-md-evenly">
-								<button class="btn btn-outline-danger" onclick="addToCart(@book.BookID)">
+								<button @(book.QuantityInStock <= 0 ? "disabled" : "") class="btn btn-outline-danger" onclick="addToCart(@book.BookID)">
 									<i class="bi-cart"></i> Add to Cart
 								</button>
 								<a href="@Url.Action("BookDetail", "Books", new { id = book.BookID })" class="btn btn-outline-secondary">

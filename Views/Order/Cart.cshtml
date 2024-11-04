@@ -1,4 +1,4 @@
-﻿@model IEnumerable<EBookStore.Models.CartItemViewModel>
+﻿@model IEnumerable<CartItemViewModel>
 
 <div class="container mt-4">
     <h2 class="text-center text-uppercase display-6 fw-bold">Your Cart</h2>
@@ -35,7 +35,7 @@
 
                             <!-- Book Title -->
                             <td class="align-middle">
-                                <a href="@Url.Action("BookDetail", "Books", new { id = @item.book!.BookID })" class="text-decoration-none">
+                                <a href="@Url.Action("BookDetail", "Books", new { id = @item.book!.BookID })" class="text-decoration-none text-secondary">
                                     <strong>@item.book!.Title</strong>
                                 </a>
                             </td>
@@ -62,7 +62,7 @@
                                 <form asp-action="RemoveFromCart" method="post">
                                     <input type="hidden" name="bookId" value="@item.book.BookID" />
                                     <button type="submit" class="btn btn-outline-danger">
-                                        <i class="fas fa-trash-alt"></i> Remove
+                                        <i class="bi-trash"></i> Remove
                                     </button>
                                 </form>
                             </td>

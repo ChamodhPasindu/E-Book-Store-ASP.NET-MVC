@@ -5,6 +5,15 @@
             <!-- Login Header -->
             <h2 class="text-center fw-bold mb-4">Login</h2>
 
+            <!-- Success Message -->
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
             <!-- Error Message -->
             @if (!string.IsNullOrEmpty(ViewBag.Error))
             {
