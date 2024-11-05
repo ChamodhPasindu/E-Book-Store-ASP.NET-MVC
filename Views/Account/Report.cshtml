@@ -1,4 +1,4 @@
-﻿@model IEnumerable<OrderViewModel>
+﻿@model IEnumerable<EBookStore.Models.DTO.OrderViewModel>
 
 <div class="container">
 	<h2 class="text-center text-uppercase display-6 fw-bold">Reports</h2>
@@ -112,12 +112,12 @@
 
 		// Download specific order
 		function downloadOrder(orderId) {
-			window.location.href = `/Account/DownloadOrder?orderId=` + orderId;
+			window.location.href = `/Order/DownloadOrder?orderId=` + orderId;
 		}
 
 		// Download all books report
 		function downloadAllBooks() {
-			window.location.href = '/Account/DownloadBooks';
+			window.location.href = '/Books/DownloadBooks';
 		}
 
 		// Download all customers report

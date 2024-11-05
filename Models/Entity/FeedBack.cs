@@ -1,4 +1,4 @@
-﻿namespace EBookStore.Models
+﻿namespace EBookStore.Models.Entity
 {
     public class FeedBack
     {

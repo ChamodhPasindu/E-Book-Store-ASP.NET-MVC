@@ -1,10 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace EBookStore.Models
+namespace EBookStore.Models.Entity
 {
     public class Book
     {
-        public int BookID { get; set; } 
+        public int BookID { get; set; }
 
         public required string Title { get; set; }
 

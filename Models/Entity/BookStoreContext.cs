@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace EBookStore.Models
+namespace EBookStore.Models.Entity
 {
     public class BookStoreContext : DbContext
     {

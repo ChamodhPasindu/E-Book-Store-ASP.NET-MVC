@@ -1,4 +1,4 @@
-﻿namespace EBookStore.Models
+﻿namespace EBookStore.Models.DTO
 {
     public class UserSettingsViewModel
     {

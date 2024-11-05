@@ -1,4 +1,6 @@
-﻿namespace EBookStore.Models
+﻿using EBookStore.Models.Entity;
+
+namespace EBookStore.Models.DTO
 {
     public class AdminDashboardViewModel
     {
@@ -13,7 +15,7 @@
         public decimal YearlyEarnings { get; set; }
         public decimal MonthlyEarnings { get; set; }
 
-		public List<Order> RecentOrders { get; set; } = new List<Order>();
+        public List<Order> RecentOrders { get; set; } = new List<Order>();
         public List<User> RecentUsers { get; set; } = new List<User>();
     }
 }

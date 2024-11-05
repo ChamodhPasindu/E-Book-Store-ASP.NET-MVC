@@ -1,4 +1,6 @@
-﻿namespace EBookStore.Models
+﻿using EBookStore.Models.Entity;
+
+namespace EBookStore.Models.DTO
 {
     public class CartItemViewModel
     {
