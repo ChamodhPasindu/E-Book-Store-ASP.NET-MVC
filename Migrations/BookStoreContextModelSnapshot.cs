@@ -22,7 +22,87 @@ namespace EBookStore.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("EBookStore.Models.Book", b =>
+            modelBuilder.Entity("EBookStore.Models.Entity.ApplicationUser", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("RegistrationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedEmail")
+                        .HasDatabaseName("EmailIndex");
+
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasDatabaseName("UserNameIndex")
+                        .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("EBookStore.Models.Entity.Book", b =>
                 {
                     b.Property<int>("BookID")
                         .ValueGeneratedOnAdd()
@@ -71,7 +151,7 @@ namespace EBookStore.Migrations
                     b.ToTable("Books");
                 });
 
-            modelBuilder.Entity("EBookStore.Models.FeedBack", b =>
+            modelBuilder.Entity("EBookStore.Models.Entity.FeedBack", b =>
                 {
                     b.Property<int>("FeedBackID")
                         .ValueGeneratedOnAdd()
@@ -95,19 +175,16 @@ namespace EBookStore.Migrations
                     b.Property<int>("UserID")
                         .HasColumnType("int");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("FeedBackID");
 
                     b.HasIndex("BookID");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserID");
 
                     b.ToTable("FeedBacks");
                 });
 
-            modelBuilder.Entity("EBookStore.Models.Order", b =>
+            modelBuilder.Entity("EBookStore.Models.Entity.Order", b =>
                 {
                     b.Property<int>("OrderID")
                         .ValueGeneratedOnAdd()
@@ -128,17 +205,14 @@ namespace EBookStore.Migrations
                     b.Property<int>("UserID")
                         .HasColumnType("int");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("OrderID");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserID");
 
                     b.ToTable("Orders");
                 });
 
-            modelBuilder.Entity("EBookStore.Models.OrderDetail", b =>
+            modelBuilder.Entity("EBookStore.Models.Entity.OrderDetail", b =>
                 {
                     b.Property<int>("OrderDetailID")
                         .ValueGeneratedOnAdd()
@@ -167,29 +241,21 @@ namespace EBookStore.Migrations
                     b.ToTable("OrderDetails");
                 });
 
-            modelBuilder.Entity("EBookStore.Models.User", b =>
+            modelBuilder.Entity("EBookStore.Models.Entity.User", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("AccessFailedCount")
+                    b.Property<int>("UserID")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserID"));
 
                     b.Property<string>("Address")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("bit");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
@@ -202,33 +268,13 @@ namespace EBookStore.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("NormalizedEmail")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("NormalizedUserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
                     b.Property<string>("Password")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("bit");
 
                     b.Property<DateTime>("RegistrationDate")
                         .HasColumnType("datetime2");
@@ -237,30 +283,9 @@ namespace EBookStore.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("SecurityStamp")
-                        .HasColumnType("nvarchar(max)");
+                    b.HasKey("UserID");
 
-                    b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("UserID")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NormalizedEmail")
-                        .HasDatabaseName("EmailIndex");
-
-                    b.HasIndex("NormalizedUserName")
-                        .IsUnique()
-                        .HasDatabaseName("UserNameIndex")
-                        .HasFilter("[NormalizedUserName] IS NOT NULL");
-
-                    b.ToTable("AspNetUsers", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -396,41 +421,45 @@ namespace EBookStore.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("EBookStore.Models.FeedBack", b =>
+            modelBuilder.Entity("EBookStore.Models.Entity.FeedBack", b =>
                 {
-                    b.HasOne("EBookStore.Models.Book", "Book")
+                    b.HasOne("EBookStore.Models.Entity.Book", "Book")
                         .WithMany("FeedBacks")
                         .HasForeignKey("BookID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("EBookStore.Models.User", "User")
+                    b.HasOne("EBookStore.Models.Entity.User", "User")
                         .WithMany("FeedBacks")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Book");
 
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("EBookStore.Models.Order", b =>
+            modelBuilder.Entity("EBookStore.Models.Entity.Order", b =>
                 {
-                    b.HasOne("EBookStore.Models.User", "User")
+                    b.HasOne("EBookStore.Models.Entity.User", "User")
                         .WithMany()
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("EBookStore.Models.OrderDetail", b =>
+            modelBuilder.Entity("EBookStore.Models.Entity.OrderDetail", b =>
                 {
-                    b.HasOne("EBookStore.Models.Book", "Book")
+                    b.HasOne("EBookStore.Models.Entity.Book", "Book")
                         .WithMany()
                         .HasForeignKey("BookID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("EBookStore.Models.Order", "Order")
+                    b.HasOne("EBookStore.Models.Entity.Order", "Order")
                         .WithMany("OrderDetails")
                         .HasForeignKey("OrderID")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -452,7 +481,7 @@ namespace EBookStore.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("EBookStore.Models.User", null)
+                    b.HasOne("EBookStore.Models.Entity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -461,7 +490,7 @@ namespace EBookStore.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("EBookStore.Models.User", null)
+                    b.HasOne("EBookStore.Models.Entity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -476,7 +505,7 @@ namespace EBookStore.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("EBookStore.Models.User", null)
+                    b.HasOne("EBookStore.Models.Entity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -485,24 +514,24 @@ namespace EBookStore.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("EBookStore.Models.User", null)
+                    b.HasOne("EBookStore.Models.Entity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("EBookStore.Models.Book", b =>
+            modelBuilder.Entity("EBookStore.Models.Entity.Book", b =>
                 {
                     b.Navigation("FeedBacks");
                 });
 
-            modelBuilder.Entity("EBookStore.Models.Order", b =>
+            modelBuilder.Entity("EBookStore.Models.Entity.Order", b =>
                 {
                     b.Navigation("OrderDetails");
                 });
 
-            modelBuilder.Entity("EBookStore.Models.User", b =>
+            modelBuilder.Entity("EBookStore.Models.Entity.User", b =>
                 {
                     b.Navigation("FeedBacks");
                 });
