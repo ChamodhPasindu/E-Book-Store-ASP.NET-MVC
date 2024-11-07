@@ -1,4 +1,6 @@
-using EBookStore.Models;
+using EBookStore.Models.Entity;
+using EBookStore.services;
+using EBookStore.services.Impl;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -6,9 +8,17 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages();
 
-// Register the password hasher
+// Register services
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IBookService, BookService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IHomeService, HomeService>();
+
 
 // Enable session management
 builder.Services.AddDistributedMemoryCache();
@@ -22,6 +32,10 @@ builder.Services.AddSession(options =>
 // Add DbContext and connection string
 builder.Services.AddDbContext<BookStoreContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+//builder.Services.AddIdentity<User, IdentityRole>()
+//    .AddEntityFrameworkStores<BookStoreContext>()
+//    .AddDefaultTokenProviders();
 
 var app = builder.Build();
 
@@ -39,7 +53,8 @@ app.UseStaticFiles();
 app.UseRouting();
 app.UseSession();
 
-app.UseAuthorization();
+//app.UseAuthentication();
+//app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
