@@ -42,6 +42,7 @@
 								@if (order.OrderStatus == "Pending")
 								{
 									<button class="btn btn-outline-primary btn-sm" onclick="ChangeOrderStatus(@order.OrderID, 'Shipped')"><i class="bi-truck"></i></button>
+									<button class="btn btn-outline-danger btn-sm" onclick="ChangeOrderStatus(@order.OrderID, 'Canceled')"><i class="bi-x-circle"></i></button>
 								}
 								else if (order.OrderStatus == "Shipped")
 								{
