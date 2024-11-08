@@ -21,7 +21,7 @@ namespace EBookStore.services.Impl
         public async Task<List<Order>> GetCustomerOrdersAsync(int userId)
         {
             return await _context.Orders
-                .Where(o => o.UserID == userId)
+                .Where(o => o.Id == userId)
                 .OrderBy(o => o.OrderStatus == "Pending" ? 0 : 1) // Sort Pending orders at the top
                 .Include(o => o.OrderDetails)
                 .ThenInclude(od => od.Book)
@@ -109,7 +109,7 @@ namespace EBookStore.services.Impl
             // Create the order
             var order = new Order
             {
-                UserID = int.Parse(userId),
+                Id = int.Parse(userId),
                 OrderDate = DateTime.Now,
                 TotalAmount = cartItems.Sum(item => item.book!.Price * item.Quantity),
                 OrderStatus = "Pending",

@@ -9,29 +9,43 @@ namespace EBookStore.services.Impl
     public class AccountService : IAccountService
     {
         private readonly BookStoreContext _context;
-        private readonly IPasswordHasher<User> _passwordHasher;
+		private readonly UserManager<User> _userManager;
+		private readonly IPasswordHasher<User> _passwordHasher;
 
-        public AccountService(BookStoreContext context, IPasswordHasher<User> passwordHasher)
+        public AccountService(BookStoreContext context, IPasswordHasher<User> passwordHasher, UserManager<User> userManager)
         {
             _context = context;
             _passwordHasher = passwordHasher;
-        }
+			_userManager = userManager;
+		}
 
 
-        List<User> IAccountService.GetActiveCustomers()
+       public async Task<List<User>> GetActiveCustomers()
         {
-            try
-            {
-                var users = _context.Users
-                                    .Where(u => u.IsActive && u.Role == "Customer")
-                                    .ToList();
-                return users ?? new List<User>();
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
+			try
+			{
+				// Fetch all active users
+				var activeUsers = await _userManager.Users
+										.Where(u => u.IsActive)
+										.ToListAsync();
+
+				// Filter active users to only include those in the "Customer" role
+				var customers = new List<User>();
+				foreach (var user in activeUsers)
+				{
+					if (await _userManager.IsInRoleAsync(user, "Customer"))
+					{
+						customers.Add(user);
+					}
+				}
+
+				return customers;
+			}
+			catch (Exception)
+			{
+				throw;
+			}
+		}
 
         public async Task<List<OrderViewModel>> GetDeliveredOrdersAsync(DateTime? fromDate, DateTime? toDate)
         {
@@ -69,32 +83,63 @@ namespace EBookStore.services.Impl
 
         public async Task<bool> RegisterCustomerAsync(User newUser)
         {
-            if (newUser == null) return false;
+			if (newUser == null) return false;
 
-            newUser.Password = _passwordHasher.HashPassword(newUser, newUser.Password);
 
-            _context.Users.Add(newUser);
-            await _context.SaveChangesAsync();
+			var result = await _userManager.CreateAsync(newUser, newUser.Password);
 
-            return true;
-        }
+			if (result.Succeeded)
+			{
+				// Assign the "Customer" role to the user
+				await _userManager.AddToRoleAsync(newUser, "Customer");
+				return true;
+			}
 
-        public async Task<bool> RegisterAdminAsync(User newUser)
-        {
-            if (newUser == null) return false;
+			// Optionally log or handle errors if the creation failed
+			foreach (var error in result.Errors)
+			{
+				Console.WriteLine($"Error: {error.Description}");
+			}
 
-            // Hash the password and set role to Admin
-            newUser.Password = _passwordHasher.HashPassword(newUser, newUser.Password);
-            newUser.Role = "Admin";
+			return false;
+		}
 
-            // Save admin to the database
-            _context.Users.Add(newUser);
-            await _context.SaveChangesAsync();
+		public async Task<bool> RegisterAdminAsync(User newUser)
+		{
+			if (newUser == null) return false;
 
-            return true;
-        }
+			// Create a new IdentityUser instance from the User model
+			var identityUser = new User
+			{
+				UserName = newUser.Email, // Typically Identity uses the email as the username
+				Email = newUser.Email,
+				FirstName = newUser.FirstName,
+				LastName = newUser.LastName,
+				Address = newUser.Address,
+                Password=null
+			};
 
-        public async Task<(bool isSuccess, User? user, string errorMessage)> LoginAsync(string email, string password)
+			// Create the user using UserManager
+			var result = await _userManager.CreateAsync(identityUser, newUser.Password);
+
+			if (result.Succeeded)
+			{
+				// Assign the "Admin" role after successful creation
+				await _userManager.AddToRoleAsync(identityUser, "Admin");
+				return true;
+			}
+
+			// Handle errors (if any)
+			foreach (var error in result.Errors)
+			{
+				// Log or handle errors here
+				Console.WriteLine($"Error: {error.Description}");
+			}
+
+			return false;
+		}
+
+		public async Task<(bool isSuccess, User? user, string errorMessage)> LoginAsync(string email, string password)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
             if (user == null)
@@ -113,13 +158,13 @@ namespace EBookStore.services.Impl
 
         public async Task<User?> GetCustomerByIdAsync(int id)
         {
-            return await _context.Users
-                .Where(b => b.UserID == id)
+            return await _userManager.Users
+                .Where(b => int.Parse(b.Id) == id)
                 .Include(b => b.FeedBacks)
                 .Select(b => new User
                 {
-                    Role = b.Role,
-                    UserID = b.UserID,
+                    //Role = b.Role,
+                    Id = b.Id,
                     FirstName = b.FirstName,
                     LastName = b.LastName,
                     Email = b.Email,
@@ -217,6 +262,8 @@ namespace EBookStore.services.Impl
                 return stream.ToArray();
             }
         }
-    }
+
+		
+	}
 }
 

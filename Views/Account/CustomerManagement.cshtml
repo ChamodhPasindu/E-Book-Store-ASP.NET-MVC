@@ -31,11 +31,11 @@
 							<td>@customer.Address</td>
 							<td>@customer.RegistrationDate</td>
 							<td>
-								<button class="btn btn-outline-secondary btn-sm" data-toggle="modal" data-target="#viewCustomerModal" onclick="viewCustomer(@customer.UserID)">
+								<button class="btn btn-outline-secondary btn-sm" data-toggle="modal" data-target="#viewCustomerModal" onclick="viewCustomer(@customer.Id)">
 									<i class="bi-eye"></i>
 								</button>
-								<button class="btn btn-outline-danger btn-sm" data-toggle="modal" data-target="#deleteConfirmationModal" data-book-id="@customer.UserID" onclick="deleteConfirm(@customer.UserID)"><i class="bi-trash"></i></button>
-								<button class="btn btn-outline-warning btn-sm" data-toggle="modal" data-target="#reviewModal" onclick="showReviews(@customer.UserID)">
+								<button class="btn btn-outline-danger btn-sm" data-toggle="modal" data-target="#deleteConfirmationModal" data-book-id="@customer.Id" onclick="deleteConfirm(@customer.Id)"><i class="bi-trash"></i></button>
+								<button class="btn btn-outline-warning btn-sm" data-toggle="modal" data-target="#reviewModal" onclick="showReviews(@customer.Id)">
 									<i class="bi-star"></i>
 								</button>
 							</td>

@@ -5,7 +5,7 @@ namespace EBookStore.services
 {
     public interface IAccountService
     {
-        List<User> GetActiveCustomers();
+        Task<List<User>> GetActiveCustomers();
 
         Task<List<OrderViewModel>> GetDeliveredOrdersAsync(DateTime? fromDate, DateTime? toDate);
 

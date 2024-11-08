@@ -21,7 +21,7 @@
 				</button>
 				<div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
 					<ul class="navbar-nav flex-grow-1">
-						@if (Context.Session.GetString("Role") != "Admin")
+						@if (!User.IsInRole("Admin"))
 						{
 							<li class="nav-item">
 								<a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
@@ -32,7 +32,7 @@
 							
 						}
 
-						@if (Context.Session.GetString("Role") == "Customer")
+						@if (User.IsInRole("Customer")) 
 						{
 							<li class="nav-item">
 								<a class="nav-link text-dark" asp-area="" asp-controller="Order" asp-action="MyOrder">My Orders</a>
@@ -40,7 +40,7 @@
 						}
 
 						<!-- Show Admin Links if user is admin -->
-						@if (Context.Session.GetString("Role") == "Admin")
+						@if (User.IsInRole("Admin")) 
 						{
 							<li class="nav-item">
 								<a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="AdminDashboard">Dashboard</a>
@@ -61,7 +61,7 @@
 					</ul>
 					<!-- Cart and Logout buttons aligned to the right -->
 					<ul class="navbar-nav ms-auto">
-						@if (Context.Session.GetString("Role") != "Admin")
+						@if (!User.IsInRole("Admin")) 
 						{
 							<li class="nav-item">
 								<a class="nav-link" asp-area="" asp-controller="Order" asp-action="Cart">
@@ -71,7 +71,7 @@
 							</li>
 						}
 
-						@if (Context.Session.GetString("Role") != null)
+						@if (User.Identity.IsAuthenticated)
 						{
 							<li class="nav-item">
 								<a class="nav-link" asp-area="" asp-controller="Account" asp-action="Setting">

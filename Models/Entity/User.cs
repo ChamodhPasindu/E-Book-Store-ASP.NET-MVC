@@ -1,20 +1,22 @@
-﻿namespace EBookStore.Models.Entity
+﻿using Microsoft.AspNetCore.Identity;
+
+namespace EBookStore.Models.Entity
 {
-    public class User
-    {
-        public int UserID { get; set; }
+    public class User : IdentityUser
+	{
+        //public int UserID { get; set; }
 
         public required string FirstName { get; set; }
 
         public required string LastName { get; set; }
 
-        public required string Email { get; set; }
+        //public required string Email { get; set; }
 
         public required string Password { get; set; }
 
-        public required string Role { get; set; } = "Customer"; // 'Admin' or 'Customer'
+        //public required string Role { get; set; } = "Customer"; // 'Admin' or 'Customer'
 
-        public required string PhoneNumber { get; set; }
+        //public required string PhoneNumber { get; set; }
 
         public required string Address { get; set; }
 

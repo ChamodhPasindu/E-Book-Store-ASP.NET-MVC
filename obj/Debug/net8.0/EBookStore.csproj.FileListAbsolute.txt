@@ -1,5 +1,3 @@
-D:\Others\TOPUP\AD Assignment 2\EBookStore\bin\Debug\net8.0\appsettings.Development.json
-D:\Others\TOPUP\AD Assignment 2\EBookStore\bin\Debug\net8.0\appsettings.json
 D:\Others\TOPUP\AD Assignment 2\EBookStore\bin\Debug\net8.0\EBookStore.staticwebassets.runtime.json
 D:\Others\TOPUP\AD Assignment 2\EBookStore\bin\Debug\net8.0\EBookStore.exe
 D:\Others\TOPUP\AD Assignment 2\EBookStore\bin\Debug\net8.0\EBookStore.deps.json
@@ -279,3 +277,5 @@ D:\Others\TOPUP\AD Assignment 2\EBookStore\bin\Debug\net8.0\Microsoft.AspNetCore
 D:\Others\TOPUP\AD Assignment 2\EBookStore\bin\Debug\net8.0\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
 D:\Others\TOPUP\AD Assignment 2\EBookStore\bin\Debug\net8.0\Microsoft.Extensions.Identity.Core.dll
 D:\Others\TOPUP\AD Assignment 2\EBookStore\bin\Debug\net8.0\Microsoft.Extensions.Identity.Stores.dll
+D:\Others\TOPUP\AD Assignment 2\EBookStore\bin\Debug\net8.0\appsettings.Development.json
+D:\Others\TOPUP\AD Assignment 2\EBookStore\bin\Debug\net8.0\appsettings.json

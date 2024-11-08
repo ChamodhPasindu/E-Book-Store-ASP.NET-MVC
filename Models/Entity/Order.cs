@@ -6,7 +6,7 @@ namespace EBookStore.Models.Entity
     {
         public int OrderID { get; set; }
 
-        public int UserID { get; set; }
+        public int Id { get; set; }
 
         public DateTime OrderDate { get; set; } = DateTime.Now;
 

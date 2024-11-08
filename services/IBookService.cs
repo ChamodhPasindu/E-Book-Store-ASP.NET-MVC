@@ -11,7 +11,7 @@ namespace EBookStore.services
 
         Task<BookDetailViewModel> GetBookDetailAsync(int id, int? userId);
 
-        Task<object> GetBookByIdAsync(int id);
+        Task<Book?> GetBookByIdAsync(int id);
 
         Task AddOrEditBookAsync(Book book, IFormFile imageFile);
 
